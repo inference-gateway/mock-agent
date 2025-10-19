@@ -4,7 +4,7 @@ kind: Agent
 metadata:
   name: mock-agent
   description: A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!
-  version: 0.1.0
+  version: 0.1.1
 spec:
   capabilities:
     streaming: true
