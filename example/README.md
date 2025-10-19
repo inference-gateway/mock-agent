@@ -114,13 +114,23 @@ curl http://localhost:8080/.well-known/agent-card.json | jq
 ### Submit a Task (A2A Protocol)
 
 ```bash
-curl -X POST http://localhost:8080/a2a/tasks \
+curl -X POST http://localhost:8080/a2a \
   -H "Content-Type: application/json" \
   -d '{
-    "id": "test-task-1",
-    "input": {
-      "type": "text",
-      "content": "Echo: Hello from direct API call"
+    "jsonrpc": "2.0",
+    "id": "req-1",
+    "method": "message/send",
+    "params": {
+      "message": {
+        "kind": "message",
+        "role": "user",
+        "parts": [
+          {
+            "kind": "text",
+            "text": "Echo: Hello from direct API call"
+          }
+        ]
+      }
     }
   }' | jq
 ```
@@ -128,8 +138,19 @@ curl -X POST http://localhost:8080/a2a/tasks \
 ### Get Task Status
 
 ```bash
-curl http://localhost:8080/a2a/tasks/test-task-1 | jq
+curl -X POST http://localhost:8080/a2a \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "req-2",
+    "method": "tasks/get",
+    "params": {
+      "taskId": "TASK_ID_HERE"
+    }
+  }' | jq
 ```
+
+Replace `TASK_ID_HERE` with the actual task ID from the response above.
 
 ## Example Workflows
 
