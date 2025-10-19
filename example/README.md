@@ -53,7 +53,7 @@ Replace `<task-id>` with the ID from the task list output.
 For an interactive session with task streaming:
 
 ```bash
-docker compose run --rm a2a-debugger tasks submit --stream 'Generate 5 random UUIDs'
+docker compose run --rm a2a-debugger tasks submit-streaming 'Generate 5 random UUIDs'
 ```
 
 ### Testing Different Skills
@@ -136,7 +136,7 @@ curl http://localhost:8080/a2a/tasks/test-task-1 | jq
 ### Testing Streaming Responses
 
 ```bash
-docker compose run --rm a2a-debugger tasks submit --stream 'Generate a long response to test streaming'
+docker compose run --rm a2a-debugger tasks submit-streaming 'Generate a long response to test streaming'
 ```
 
 The mock agent will stream the response in chunks, simulating how a real LLM would stream tokens.
