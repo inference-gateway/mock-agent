@@ -6,7 +6,7 @@
 [![A2A Protocol](https://img.shields.io/badge/A2A-Protocol-blue?style=flat)](https://github.com/inference-gateway/adk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**A2A agent server for mocking and testing**
+**A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!**
 
 A production-ready [Agent-to-Agent (A2A)](https://github.com/inference-gateway/adk) server that provides AI-powered capabilities through a standardized protocol.
 
@@ -139,7 +139,7 @@ docker build \
 **Available Build Arguments:**
 - `VERSION` - Agent version (default: `0.1.0`)
 - `AGENT_NAME` - Agent name (default: `mock-agent`)
-- `AGENT_DESCRIPTION` - Agent description (default: `A2A agent server for mocking and testing`)
+- `AGENT_DESCRIPTION` - Agent description (default: `A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!`)
 
 These values are embedded into the binary at build time using linker flags, making them accessible at runtime without requiring environment variables.
 

@@ -6,7 +6,7 @@ This file describes the agents available in this A2A (Agent-to-Agent) system.
 
 ### mock-agent
 **Version**: 0.1.0  
-**Description**: A2A agent server for mocking and testing
+**Description**: A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!
 
 This agent is built using the Agent Definition Language (ADL) and provides A2A communication capabilities.
 

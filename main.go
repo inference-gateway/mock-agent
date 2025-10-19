@@ -19,12 +19,13 @@ import (
 	skills "github.com/inference-gateway/mock-agent/skills"
 
 	logger "github.com/inference-gateway/mock-agent/internal/logger"
+	mock "github.com/inference-gateway/mock-agent/internal/mock"
 )
 
 var (
 	Version          = "0.1.0"
 	AgentName        = "mock-agent"
-	AgentDescription = "A2A agent server for mocking and testing"
+	AgentDescription = "A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!"
 )
 
 func main() {
@@ -35,6 +36,7 @@ func main() {
 		log.Fatal("failed to load config:", err)
 	}
 
+	// Initialize logger
 	l, err := logger.NewLogger(ctx, &cfg)
 	if err != nil {
 		log.Fatal("failed to initialize logger:", err)
@@ -42,32 +44,36 @@ func main() {
 
 	l.Info("starting " + AgentName + " agent (version: " + Version + ", environment: " + cfg.Environment + ")")
 
+	// Create toolbox with default tools (like input_required, create_artifact etc)
 	toolBox := server.NewDefaultToolBox(&cfg.A2A.AgentConfig.ToolBoxConfig)
 
+	// Register echo skill
 	echoSkill := skills.NewEchoSkill()
 	toolBox.AddTool(echoSkill)
 	l.Info("registered skill: echo (Echo back the input message (useful for basic connectivity tests))")
 
+	// Register delay skill
 	delaySkill := skills.NewDelaySkill()
 	toolBox.AddTool(delaySkill)
 	l.Info("registered skill: delay (Simulate slow responses with configurable delays)")
 
+	// Register error skill
 	errorSkill := skills.NewErrorSkill()
 	toolBox.AddTool(errorSkill)
 	l.Info("registered skill: error (Simulate error conditions for testing error handling)")
 
+	// Register random_data skill
 	randomDataSkill := skills.NewRandomDataSkill()
 	toolBox.AddTool(randomDataSkill)
 	l.Info("registered skill: random_data (Generate random test data)")
 
+	// Register validate skill
 	validateSkill := skills.NewValidateSkill()
 	toolBox.AddTool(validateSkill)
 	l.Info("registered skill: validate (Validate input against common patterns)")
 
-	llmClient, err := server.NewOpenAICompatibleLLMClient(&cfg.A2A.AgentConfig, l)
-	if err != nil {
-		l.Fatal("failed to create LLM client", zap.Error(err))
-	}
+	llmClient := mock.NewMockLLMClient()
+	l.Info("using mock LLM client (no external API calls)")
 
 	agent, err := server.NewAgentBuilder(l).
 		WithConfig(&cfg.A2A.AgentConfig).

@@ -1,7 +1,7 @@
 {
 	"name": "mock-agent",
 	"version": "0.1.0",
-	"description": "A2A agent server for mocking and testing",
+	"description": "A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!",
 	"protocolVersion": "0.3.0",
 	"url": "",
 	"preferredTransport": "JSONRPC",

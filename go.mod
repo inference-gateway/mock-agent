@@ -5,6 +5,7 @@ go 1.25
 require (
 	github.com/google/uuid v1.6.0
 	github.com/inference-gateway/adk v0.15.2
+	github.com/inference-gateway/sdk v1.13.0
 	github.com/sethvargo/go-envconfig v1.3.0
 	go.uber.org/zap v1.27.0
 )
@@ -32,7 +33,6 @@ require (
 	github.com/go-playground/validator/v10 v10.24.0 // indirect
 	github.com/go-resty/resty/v2 v2.16.3 // indirect
 	github.com/goccy/go-json v0.10.4 // indirect
-	github.com/inference-gateway/sdk v1.10.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect

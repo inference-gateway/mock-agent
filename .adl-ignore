@@ -15,8 +15,13 @@ skills/error.go
 skills/random_data.go
 skills/validate.go
 
+main.go
+
+# Mock implementations
+internal/mock/
+
 # Go dependency files
-go.sum
+go.mod
 
 # Add your own files to ignore here:
 # my-custom-file.go

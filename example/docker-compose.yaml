@@ -1,0 +1,59 @@
+---
+services:
+  mock-agent:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: mock-agent
+    environment:
+      ENVIRONMENT: development
+      A2A_PORT: 8080
+      A2A_DEBUG: true
+      A2A_AGENT_URL: http://mock-agent:8080
+      A2A_STREAMING_STATUS_UPDATE_INTERVAL: 1s
+      A2A_SERVER_READ_TIMEOUT: 120s
+      A2A_SERVER_WRITE_TIMEOUT: 120s
+      A2A_SERVER_IDLE_TIMEOUT: 120s
+      A2A_SERVER_DISABLE_HEALTHCHECK_LOG: true
+      A2A_AGENT_CARD_FILE_PATH: .well-known/agent-card.json
+      A2A_CAPABILITIES_STREAMING: true
+      A2A_CAPABILITIES_PUSH_NOTIFICATIONS: false
+      A2A_CAPABILITIES_STATE_TRANSITION_HISTORY: false
+      A2A_TASK_RETENTION_MAX_COMPLETED_TASKS: 1000
+      A2A_TASK_RETENTION_MAX_FAILED_TASKS: 500
+      A2A_TASK_RETENTION_CLEANUP_INTERVAL: 1h
+      A2A_QUEUE_PROVIDER: memory
+      A2A_QUEUE_MAX_SIZE: 1000
+      A2A_QUEUE_CLEANUP_INTERVAL: 1h
+      A2A_AUTH_ENABLE: false
+    ports:
+      - "8080:8080"
+    networks:
+      - mock-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  a2a-debugger:
+    image: ghcr.io/inference-gateway/a2a-debugger:latest
+    pull_policy: always
+    entrypoint:
+      - /a2a
+      - --server-url
+      - http://mock-agent:8080
+      - --timeout
+      - 60s
+    networks:
+      - mock-network
+    profiles:
+      - manual
+    depends_on:
+      mock-agent:
+        condition: service_healthy
+
+networks:
+  mock-network:
+    driver: bridge

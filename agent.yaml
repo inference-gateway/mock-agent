@@ -3,7 +3,7 @@ apiVersion: adl.dev/v1
 kind: Agent
 metadata:
   name: mock-agent
-  description: A2A agent server for mocking and testing
+  description: A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!
   version: 0.1.0
 spec:
   capabilities:

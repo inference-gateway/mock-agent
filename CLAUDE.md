@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-mock-agent is an A2A (Agent-to-Agent) server implementing the [A2A Protocol](https://github.com/inference-gateway/adk) for agent-to-agent communication. A2A agent server for mocking and testing. The project is automatically generated from ADL (Agent Definition Language) specifications defined in `agent.yaml`.
+mock-agent is an A2A (Agent-to-Agent) server implementing the [A2A Protocol](https://github.com/inference-gateway/adk) for agent-to-agent communication. A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!. The project is automatically generated from ADL (Agent Definition Language) specifications defined in `agent.yaml`.
 
 ## Core Architecture
 

@@ -60,7 +60,7 @@ plugins:
       publishCmd: |
         echo "Building and pushing Docker image for version ${nextRelease.version}"
         REPO_LOWER=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
-        DESCRIPTION="A2A agent server for mocking and testing"
+        DESCRIPTION="A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!"
         TITLE="mock-agent"
         
         if [[ "$GITHUB_REF_NAME" == rc/* ]]; then
