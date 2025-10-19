@@ -28,13 +28,11 @@ func NewErrorSkill() server.Tool {
 
 // ErrorHandler handles the error skill execution
 func (s *ErrorSkill) ErrorHandler(ctx context.Context, args map[string]any) (string, error) {
-	// Extract error_type parameter
 	errorType, ok := args["error_type"].(string)
 	if !ok {
 		return "", fmt.Errorf("error_type parameter is required and must be a string")
 	}
 
-	// Extract optional custom message
 	customMessage := ""
 	if val, ok := args["message"]; ok {
 		if msg, ok := val.(string); ok {
@@ -42,7 +40,6 @@ func (s *ErrorSkill) ErrorHandler(ctx context.Context, args map[string]any) (str
 		}
 	}
 
-	// Simulate different error types
 	switch errorType {
 	case "validation":
 		if customMessage == "" {

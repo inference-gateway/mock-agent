@@ -27,13 +27,11 @@ func NewEchoSkill() server.Tool {
 
 // EchoHandler handles the echo skill execution
 func (s *EchoSkill) EchoHandler(ctx context.Context, args map[string]any) (string, error) {
-	// Extract message parameter
 	message, ok := args["message"].(string)
 	if !ok {
 		return "", fmt.Errorf("message parameter is required and must be a string")
 	}
 
-	// Echo back the message with metadata
 	return fmt.Sprintf(`{"status": "success", "echo": %q, "length": %d, "timestamp": %d}`,
 		message, len(message), ctx.Value("timestamp")), nil
 }

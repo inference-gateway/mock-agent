@@ -31,19 +31,16 @@ func NewValidateSkill() server.Tool {
 
 // ValidateHandler handles the validate skill execution
 func (s *ValidateSkill) ValidateHandler(ctx context.Context, args map[string]any) (string, error) {
-	// Extract input parameter
 	input, ok := args["input"].(string)
 	if !ok {
 		return "", fmt.Errorf("input parameter is required and must be a string")
 	}
 
-	// Extract validation_type parameter
 	validationType, ok := args["validation_type"].(string)
 	if !ok {
 		return "", fmt.Errorf("validation_type parameter is required and must be a string")
 	}
 
-	// Perform validation based on type
 	var isValid bool
 	var errorMsg string
 
@@ -78,7 +75,6 @@ func (s *ValidateSkill) ValidateHandler(ctx context.Context, args map[string]any
 		}
 
 	case "phone":
-		// Simple phone validation (supports various formats)
 		phoneRegex := regexp.MustCompile(`^[\d\s\-\+\(\)]{10,}$`)
 		isValid = phoneRegex.MatchString(input)
 		if !isValid {

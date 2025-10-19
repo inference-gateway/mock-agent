@@ -31,13 +31,11 @@ func NewRandomDataSkill() server.Tool {
 
 // RandomDataHandler handles the random_data skill execution
 func (s *RandomDataSkill) RandomDataHandler(ctx context.Context, args map[string]any) (string, error) {
-	// Extract data_type parameter
 	dataType, ok := args["data_type"].(string)
 	if !ok {
 		return "", fmt.Errorf("data_type parameter is required and must be a string")
 	}
 
-	// Extract count parameter (default to 1)
 	count := 1
 	if val, ok := args["count"]; ok {
 		if c, ok := val.(float64); ok {
@@ -45,12 +43,10 @@ func (s *RandomDataSkill) RandomDataHandler(ctx context.Context, args map[string
 		}
 	}
 
-	// Validate count
 	if count < 1 || count > 100 {
 		return "", fmt.Errorf("count must be between 1 and 100")
 	}
 
-	// Generate data based on type
 	var results []string
 	for i := 0; i < count; i++ {
 		switch dataType {
@@ -83,7 +79,6 @@ func (s *RandomDataSkill) RandomDataHandler(ctx context.Context, args map[string
 		}
 	}
 
-	// Format results
 	resultsJSON, _ := json.Marshal(results)
 	return fmt.Sprintf(`{"status": "success", "data_type": %q, "count": %d, "results": %s}`,
 		dataType, count, string(resultsJSON)), nil
