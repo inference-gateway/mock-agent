@@ -8,7 +8,7 @@
 
 **A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!**
 
-A production-ready [Agent-to-Agent (A2A)](https://github.com/inference-gateway/adk) server that provides AI-powered capabilities through a standardized protocol.
+A enterprise-ready [Agent-to-Agent (A2A)](https://github.com/inference-gateway/adk) server that provides AI-powered capabilities through a standardized protocol.
 
 </div>
 
