@@ -1,0 +1,52 @@
+{
+	"name": "mock-agent",
+	"version": "0.1.0",
+	"description": "A2A agent server for mocking and testing",
+	"protocolVersion": "0.3.0",
+	"url": "",
+	"preferredTransport": "JSONRPC",
+	"defaultInputModes": ["text"],
+	"defaultOutputModes": ["text"],
+	"capabilities": {
+		"streaming": true,
+		"pushNotifications": false,
+		"stateTransitionHistory": false
+	},
+	"skills": [
+		{
+			"id": "echo",
+			"name": "echo",
+			"description": "Echo back the input message (useful for basic connectivity tests)",
+			"tags": ["mock","testing","echo"],
+			"schema": {"parameters":[{"description":"The message to echo back","name":"message","required":true,"type":"string"}],"type":"object"}
+		},
+		{
+			"id": "delay",
+			"name": "delay",
+			"description": "Simulate slow responses with configurable delays",
+			"tags": ["mock","testing","performance"],
+			"schema": {"parameters":[{"description":"Number of seconds to delay (default 2)","name":"duration_seconds","required":false,"type":"number"},{"description":"Message to return after delay","name":"message","required":false,"type":"string"}],"type":"object"}
+		},
+		{
+			"id": "error",
+			"name": "error",
+			"description": "Simulate error conditions for testing error handling",
+			"tags": ["mock","testing","error-handling"],
+			"schema": {"parameters":[{"description":"Type of error to simulate (validation, timeout, internal, not_found)","name":"error_type","required":true,"type":"string"},{"description":"Custom error message","name":"message","required":false,"type":"string"}],"type":"object"}
+		},
+		{
+			"id": "random_data",
+			"name": "random_data",
+			"description": "Generate random test data",
+			"tags": ["mock","testing","data-generation"],
+			"schema": {"parameters":[{"description":"Type of data to generate (uuid, email, name, number, json)","name":"data_type","required":true,"type":"string"},{"description":"Number of items to generate (default 1)","name":"count","required":false,"type":"number"}],"type":"object"}
+		},
+		{
+			"id": "validate",
+			"name": "validate",
+			"description": "Validate input against common patterns",
+			"tags": ["mock","testing","validation"],
+			"schema": {"parameters":[{"description":"The input to validate","name":"input","required":true,"type":"string"},{"description":"Type of validation (email, url, json, uuid, phone)","name":"validation_type","required":true,"type":"string"}],"type":"object"}
+		}
+	]
+}

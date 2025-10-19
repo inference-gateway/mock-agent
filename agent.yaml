@@ -1,0 +1,119 @@
+---
+apiVersion: adl.dev/v1
+kind: Agent
+metadata:
+  name: mock-agent
+  description: A2A agent server for mocking and testing
+  version: 0.1.0
+spec:
+  capabilities:
+    streaming: true
+    pushNotifications: false
+    stateTransitionHistory: false
+  agent:
+    provider: ""
+    model: ""
+    systemPrompt: |
+      You are a mock AI assistant designed for testing and development purposes.
+
+      You have access to several mock skills that demonstrate different testing scenarios:
+      - echo: Simply echo back the input message (useful for basic connectivity tests)
+      - delay: Simulate slow responses with configurable delays
+      - error: Simulate error conditions for testing error handling
+      - random_data: Generate random test data
+      - validate: Validate input against common patterns
+
+      When responding:
+      - Be clear and predictable in your responses
+      - Include relevant metadata about the request
+      - Support both streaming and non-streaming modes
+      - Handle edge cases gracefully
+
+      Your purpose is to provide consistent, reproducible responses for testing A2A protocol implementations.
+  skills:
+    - id: echo
+      name: echo
+      description: Echo back the input message (useful for basic connectivity tests)
+      tags: ["mock", "testing", "echo"]
+      schema:
+        type: object
+        parameters:
+          - name: message
+            description: The message to echo back
+            required: true
+            type: string
+    - id: delay
+      name: delay
+      description: Simulate slow responses with configurable delays
+      tags: ["mock", "testing", "performance"]
+      schema:
+        type: object
+        parameters:
+          - name: duration_seconds
+            description: Number of seconds to delay (default 2)
+            required: false
+            type: number
+          - name: message
+            description: Message to return after delay
+            required: false
+            type: string
+    - id: error
+      name: error
+      description: Simulate error conditions for testing error handling
+      tags: ["mock", "testing", "error-handling"]
+      schema:
+        type: object
+        parameters:
+          - name: error_type
+            description: Type of error to simulate (validation, timeout, internal, not_found)
+            required: true
+            type: string
+          - name: message
+            description: Custom error message
+            required: false
+            type: string
+    - id: random_data
+      name: random_data
+      description: Generate random test data
+      tags: ["mock", "testing", "data-generation"]
+      schema:
+        type: object
+        parameters:
+          - name: data_type
+            description: Type of data to generate (uuid, email, name, number, json)
+            required: true
+            type: string
+          - name: count
+            description: Number of items to generate (default 1)
+            required: false
+            type: number
+    - id: validate
+      name: validate
+      description: Validate input against common patterns
+      tags: ["mock", "testing", "validation"]
+      schema:
+        type: object
+        parameters:
+          - name: input
+            description: The input to validate
+            required: true
+            type: string
+          - name: validation_type
+            description: Type of validation (email, url, json, uuid, phone)
+            required: true
+            type: string
+  server:
+    port: 8080
+    debug: false
+  language:
+    go:
+      module: github.com/inference-gateway/mock-agent
+      version: "1.25"
+  scm:
+    provider: github
+    url: https://github.com/inference-gateway/mock-agent
+    github_app: true
+    issue_templates: true
+  sandbox:
+    flox:
+      enabled: true
