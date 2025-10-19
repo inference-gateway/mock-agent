@@ -29,7 +29,7 @@ The a2a-debugger provides a CLI interface to interact with the agent.
 #### 1. Submit a Test Task
 
 ```bash
-docker compose run --rm a2a-debugger tasks submit "Please echo back this message: Hello, Mock Agent!"
+docker compose run --rm a2a-debugger tasks submit 'Please echo back this message: Hello, Mock Agent!'
 ```
 
 This will submit a task to the mock agent. The agent will use the `echo` skill to echo back the message.
@@ -53,7 +53,7 @@ Replace `<task-id>` with the ID from the task list output.
 For an interactive session with task streaming:
 
 ```bash
-docker compose run --rm a2a-debugger tasks submit --stream "Generate 5 random UUIDs"
+docker compose run --rm a2a-debugger tasks submit --stream 'Generate 5 random UUIDs'
 ```
 
 ### Testing Different Skills
@@ -62,27 +62,27 @@ The mock agent provides 5 skills for testing various scenarios:
 
 #### Echo Skill (Basic Connectivity)
 ```bash
-docker compose run --rm a2a-debugger tasks submit "Echo: Testing the mock agent"
+docker compose run --rm a2a-debugger tasks submit 'Echo: Testing the mock agent'
 ```
 
 #### Delay Skill (Performance Testing)
 ```bash
-docker compose run --rm a2a-debugger tasks submit "Wait for 5 seconds then respond"
+docker compose run --rm a2a-debugger tasks submit 'Wait for 5 seconds then respond'
 ```
 
 #### Error Skill (Error Handling)
 ```bash
-docker compose run --rm a2a-debugger tasks submit "Simulate a validation error"
+docker compose run --rm a2a-debugger tasks submit 'Simulate a validation error'
 ```
 
 #### Random Data Skill (Data Generation)
 ```bash
-docker compose run --rm a2a-debugger tasks submit "Generate 10 random email addresses"
+docker compose run --rm a2a-debugger tasks submit 'Generate 10 random email addresses'
 ```
 
 #### Validate Skill (Input Validation)
 ```bash
-docker compose run --rm a2a-debugger tasks submit "Validate this email: test@example.com"
+docker compose run --rm a2a-debugger tasks submit 'Validate this email: test@example.com'
 ```
 
 ## Available Skills
@@ -136,7 +136,7 @@ curl http://localhost:8080/a2a/tasks/test-task-1 | jq
 ### Testing Streaming Responses
 
 ```bash
-docker compose run --rm a2a-debugger tasks submit --stream "Generate a long response to test streaming"
+docker compose run --rm a2a-debugger tasks submit --stream 'Generate a long response to test streaming'
 ```
 
 The mock agent will stream the response in chunks, simulating how a real LLM would stream tokens.
@@ -145,26 +145,26 @@ The mock agent will stream the response in chunks, simulating how a real LLM wou
 
 ```bash
 # Validation error
-docker compose run --rm a2a-debugger tasks submit "Please trigger a validation error"
+docker compose run --rm a2a-debugger tasks submit 'Please trigger a validation error'
 
 # Timeout error
-docker compose run --rm a2a-debugger tasks submit "Please simulate a timeout"
+docker compose run --rm a2a-debugger tasks submit 'Please simulate a timeout'
 
 # Internal error
-docker compose run --rm a2a-debugger tasks submit "Please simulate an internal server error"
+docker compose run --rm a2a-debugger tasks submit 'Please simulate an internal server error'
 ```
 
 ### Generating Test Data
 
 ```bash
 # Generate UUIDs
-docker compose run --rm a2a-debugger tasks submit "Generate 5 UUIDs for testing"
+docker compose run --rm a2a-debugger tasks submit 'Generate 5 UUIDs for testing'
 
 # Generate emails
-docker compose run --rm a2a-debugger tasks submit "Generate 10 test email addresses"
+docker compose run --rm a2a-debugger tasks submit 'Generate 10 test email addresses'
 
 # Generate JSON test data
-docker compose run --rm a2a-debugger tasks submit "Generate 3 JSON objects for testing"
+docker compose run --rm a2a-debugger tasks submit 'Generate 3 JSON objects for testing'
 ```
 
 ## Monitoring and Debugging
