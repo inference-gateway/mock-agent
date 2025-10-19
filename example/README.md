@@ -9,6 +9,7 @@ This example demonstrates how to use the mock-agent for testing and development.
 - **5 Testing Skills** - Pre-configured skills for various testing scenarios
 - **Fast & Reliable** - Instant, predictable responses perfect for testing
 - **A2A Protocol Compliant** - Full implementation of the A2A protocol
+- **Artifact Server** - MinIO-backed artifact storage for testing file artifacts
 
 ## Quick Start
 
@@ -188,6 +189,63 @@ docker compose run --rm a2a-debugger tasks submit 'Generate 10 test email addres
 docker compose run --rm a2a-debugger tasks submit 'Generate 3 JSON objects for testing'
 ```
 
+### Testing Artifacts
+
+The mock agent includes a fully operational artifact server with MinIO storage backend:
+
+```bash
+# Verify artifact server is running
+curl http://localhost:8081/health
+# Response: {"status":"ok","time":"2025-10-19T17:37:20Z"}
+
+# Verify artifact service is initialized
+docker compose logs mock-agent | grep "artifact service initialized"
+# Should show: artifact service initialized with MinIO storage
+
+# Submit a task
+docker compose run --rm a2a-debugger tasks submit 'Please create an artifact with sample data'
+```
+
+**Infrastructure Status:**
+- ✅ Artifact server running on port 8081
+- ✅ MinIO storage backend connected (minio:9000)
+- ✅ Artifact service initialized successfully
+- ✅ Download endpoint: `GET /artifacts/:artifactId/:filename`
+- ✅ `create_artifact` tool available to LLM
+
+**How Artifacts Work:**
+1. The ADK automatically provides a `create_artifact` tool to the LLM
+2. When the LLM calls this tool, artifacts are stored in MinIO
+3. The artifact metadata (ID, download URL) is returned to the client
+4. Clients download artifacts from `:8081/artifacts/:artifactId/:filename`
+
+**Testing with Real LLM:**
+The mock LLM is designed for testing A2A protocol infrastructure without API costs. To test actual artifact creation:
+
+1. Replace mock LLM with a real provider in `main.go`:
+   ```go
+   // Instead of:
+   llmClient := mock.NewMockLLMClient()
+
+   // Use:
+   llmClient, err := server.NewOpenAICompatibleLLMClient(&cfg.A2A.AgentConfig, l)
+   ```
+
+2. Set environment variables:
+   ```bash
+   A2A_AGENT_CLIENT_PROVIDER=openai
+   A2A_AGENT_CLIENT_API_KEY=your-key
+   A2A_AGENT_CLIENT_MODEL=gpt-4
+   ```
+
+3. The LLM will then call `create_artifact` and store files in MinIO
+
+Access MinIO console to view/manage artifacts:
+```bash
+# Open in browser: http://localhost:9001
+# Credentials: minioadmin / minioadmin
+```
+
 ## Monitoring and Debugging
 
 ### View Agent Logs
@@ -219,18 +277,44 @@ docker compose down
 ## Architecture
 
 ```
-┌─────────────┐         ┌──────────────┐
-│ a2a-debugger│────────>│  mock-agent  │
-│    (CLI)    │  A2A    │   :8080      │
-└─────────────┘ Protocol└──────────────┘
-                               │
-                               v
-                        ┌──────────────┐
-                        │ Mock LLM     │
-                        │ Client       │
-                        │ (No API Key) │
-                        └──────────────┘
+┌─────────────┐   A2A Protocol  ┌──────────────┐
+│ a2a-debugger│────────────────>│  mock-agent  │
+│ (A2A Client)│                 │ (A2A Server) │
+│             │                 │   :8080      │
+│             │                 └──────┬───────┘
+│             │                        │
+│             │                        │ Uses
+│             │                        v
+│             │                 ┌──────────────┐
+│             │                 │  Mock LLM    │
+│             │                 │   Client     │
+│             │                 │ (Generates   │
+│             │                 │  Artifacts)  │
+│             │                 └──────┬───────┘
+│             │                        │
+│             │                        │ Stores
+│             │                        v
+│             │  Download        ┌──────────────┐
+│             │  Artifacts       │   MinIO      │
+│             │<─────────────────│   :9000      │
+└─────────────┘  via :8081       └──────────────┘
+                 Artifact Server
 ```
+
+## Services
+
+This example runs the following services:
+
+1. **mock-agent** (:8080) - The main A2A agent server with Mock LLM client
+2. **artifacts-server** (:8081) - HTTP server for clients to download generated artifacts
+3. **minio** (:9000, :9001) - Object storage backend where artifacts are stored
+4. **a2a-debugger** - CLI tool for interacting with the agent (manual profile)
+
+The flow is:
+1. Client sends request to mock-agent via A2A protocol
+2. Mock LLM generates artifacts and stores them in MinIO
+3. Mock-agent returns artifact metadata to client
+4. Client downloads artifacts from artifact server (:8081) which retrieves them from MinIO
 
 ## Why Use the Mock Agent?
 

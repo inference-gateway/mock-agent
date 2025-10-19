@@ -102,6 +102,23 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 		l.Fatal("failed to create agent", zap.Error(err))
 	}
 
+	artifactService, err := server.NewArtifactService(&cfg.A2A.ArtifactsConfig, l)
+	if err != nil {
+		l.Warn("artifact service could not be created - check ARTIFACTS_ENABLE environment variable", zap.Error(err))
+		l.Info("continuing without artifact service support")
+		artifactService = nil
+	}
+
+	artifactsServer, err := server.
+		NewArtifactsServerBuilder(&cfg.A2A.ArtifactsConfig, l).
+		WithArtifactService(artifactService).
+		Build()
+	if err != nil {
+		l.Warn("artifacts server could not be created", zap.Error(err))
+		l.Info("continuing without artifacts server")
+		artifactsServer = nil
+	}
+
 	a2aServer, err := server.NewA2AServerBuilder(cfg.A2A, l).
 		WithAgent(agent).
 		WithAgentCardFromFile(".well-known/agent-card.json", map[string]any{
@@ -110,6 +127,7 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 			"description": AgentDescription,
 			"url":         cfg.A2A.AgentURL,
 		}).
+		WithArtifactService(artifactService).
 		WithDefaultBackgroundTaskHandler().
 		WithDefaultStreamingTaskHandler().
 		Build()
@@ -124,6 +142,15 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 		}
 	}()
 
+	if artifactsServer != nil {
+		go func() {
+			l.Info("starting A2A artifacts server", zap.String("port", cfg.A2A.ArtifactsConfig.ServerConfig.Port))
+			if err := artifactsServer.Start(ctx); err != nil {
+				l.Fatal("artifacts server failed to start", zap.Error(err))
+			}
+		}()
+	}
+
 	l.Info("mock-agent agent running successfully",
 		zap.String("port", cfg.A2A.ServerConfig.Port),
 		zap.String("environment", cfg.Environment))
@@ -134,5 +161,8 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 
 	l.Info("shutdown signal received, gracefully stopping server...")
 	a2aServer.Stop(ctx)
+	if artifactsServer != nil {
+		artifactsServer.Stop(ctx)
+	}
 	l.Info("mock-agent agent stopped")
 }

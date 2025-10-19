@@ -17,9 +17,6 @@ skills/validate.go
 
 main.go
 
-# Mock implementations
-internal/mock/
-
 # Go dependency files
 go.mod
 

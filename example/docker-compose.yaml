@@ -1,5 +1,25 @@
 ---
 services:
+  minio:
+    image: minio/minio:latest
+    container_name: mock-agent-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - mock-network
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   mock-agent:
     build:
       context: ..
@@ -26,10 +46,28 @@ services:
       A2A_QUEUE_MAX_SIZE: 1000
       A2A_QUEUE_CLEANUP_INTERVAL: 1h
       A2A_AUTH_ENABLE: false
+      A2A_AGENT_CLIENT_TOOLS_CREATE_ARTIFACT: "true"
+      A2A_ARTIFACTS_ENABLE: "true"
+      A2A_ARTIFACTS_SERVER_HOST: "0.0.0.0"
+      A2A_ARTIFACTS_SERVER_PORT: "8081"
+      A2A_ARTIFACTS_STORAGE_PROVIDER: minio
+      A2A_ARTIFACTS_STORAGE_ENDPOINT: minio:9000
+      A2A_ARTIFACTS_STORAGE_ACCESS_KEY: minioadmin
+      A2A_ARTIFACTS_STORAGE_SECRET_KEY: minioadmin
+      A2A_ARTIFACTS_STORAGE_BUCKET_NAME: artifacts
+      A2A_ARTIFACTS_STORAGE_USE_SSL: "false"
+      A2A_ARTIFACTS_STORAGE_BASE_URL: http://localhost:9000
+      A2A_ARTIFACTS_RETENTION_MAX_ARTIFACTS: "10"
+      A2A_ARTIFACTS_RETENTION_MAX_AGE: 168h
+      A2A_ARTIFACTS_RETENTION_CLEANUP_INTERVAL: 24h
     ports:
       - "8080:8080"
+      - "8081:8081"
     networks:
       - mock-network
+    depends_on:
+      minio:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
       interval: 10s
@@ -57,3 +95,7 @@ services:
 networks:
   mock-network:
     driver: bridge
+
+volumes:
+  minio-data:
+    driver: local

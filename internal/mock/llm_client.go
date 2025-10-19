@@ -317,6 +317,41 @@ func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) [
 		}
 	}
 
+	if contains(lowerMsg, "artifact") || contains(lowerMsg, "create file") || contains(lowerMsg, "save file") {
+		for _, tool := range tools {
+			if tool.Function.Name == "create_artifact" {
+				name := "sample-data.json"
+				content := `{"id": 1, "name": "John Doe", "email": "john.doe@example.com"}`
+
+				if contains(lowerMsg, "text") || contains(lowerMsg, "txt") {
+					name = "sample-data.txt"
+					content = "This is a sample text artifact created by the mock agent."
+				} else if contains(lowerMsg, "csv") {
+					name = "sample-data.csv"
+					content = "id,name,email\n1,John Doe,john.doe@example.com\n2,Jane Smith,jane.smith@example.com"
+				}
+
+				args, _ := json.Marshal(map[string]any{
+					"name":     name,
+					"content":  content,
+					"type":     "url",
+					"filename": name,
+				})
+
+				return []sdk.ChatCompletionMessageToolCall{
+					{
+						Id:   "call-" + generateID(),
+						Type: sdk.Function,
+						Function: sdk.ChatCompletionMessageToolCallFunction{
+							Name:      "create_artifact",
+							Arguments: string(args),
+						},
+					},
+				}
+			}
+		}
+	}
+
 	if contains(lowerMsg, "random") || contains(lowerMsg, "generate") {
 		for _, tool := range tools {
 			if tool.Function.Name == "random_data" {
@@ -355,6 +390,31 @@ func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) [
 						},
 					},
 				}
+			}
+		}
+	}
+
+	for _, tool := range tools {
+		if tool.Function.Name == "create_artifact" {
+			name := "default-file.json"
+			content := `{"message": "Default artifact content"}`
+
+			args, _ := json.Marshal(map[string]any{
+				"name":     name,
+				"content":  content,
+				"type":     "url",
+				"filename": name,
+			})
+
+			return []sdk.ChatCompletionMessageToolCall{
+				{
+					Id:   "call-" + generateID(),
+					Type: sdk.Function,
+					Function: sdk.ChatCompletionMessageToolCallFunction{
+						Name:      "create_artifact",
+						Arguments: string(args),
+					},
+				},
 			}
 		}
 	}

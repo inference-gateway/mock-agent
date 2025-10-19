@@ -10,6 +10,8 @@ spec:
     streaming: true
     pushNotifications: false
     stateTransitionHistory: false
+  artifacts:
+    enabled: true
   agent:
     provider: ""
     model: ""
