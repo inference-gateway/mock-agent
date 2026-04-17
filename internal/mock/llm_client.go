@@ -21,19 +21,20 @@ func (m *MockLLMClient) CreateChatCompletion(ctx context.Context, messages []sdk
 	}
 
 	lastMessage := messages[len(messages)-1]
-	lastContent := lastMessage.Content
+	lastContent := contentToString(lastMessage.Content)
 
 	userMessage := ""
 	hasToolResults := false
 	var toolError string
 	for _, msg := range messages {
 		if msg.Role == sdk.User {
-			userMessage = msg.Content
+			userMessage = contentToString(msg.Content)
 		}
 		if msg.Role == sdk.Tool {
 			hasToolResults = true
-			if contains(toLower(msg.Content), "error") || contains(toLower(msg.Content), "failed") {
-				toolError = msg.Content
+			msgText := contentToString(msg.Content)
+			if contains(toLower(msgText), "error") || contains(toLower(msgText), "failed") {
+				toolError = msgText
 			}
 		}
 	}
@@ -67,7 +68,7 @@ func (m *MockLLMClient) CreateChatCompletion(ctx context.Context, messages []sdk
 				Index: 0,
 				Message: sdk.Message{
 					Role:      sdk.Assistant,
-					Content:   responseContent,
+					Content:   sdk.NewMessageContent(responseContent),
 					ToolCalls: toolCalls,
 				},
 				FinishReason: sdk.Stop,
@@ -95,19 +96,20 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 		}
 
 		lastMessage := messages[len(messages)-1]
-		lastContent := lastMessage.Content
+		lastContent := contentToString(lastMessage.Content)
 
 		userMessage := ""
 		hasToolResults := false
 		var toolError string
 		for _, msg := range messages {
 			if msg.Role == sdk.User {
-				userMessage = msg.Content
+				userMessage = contentToString(msg.Content)
 			}
 			if msg.Role == sdk.Tool {
 				hasToolResults = true
-				if contains(toLower(msg.Content), "error") || contains(toLower(msg.Content), "failed") {
-					toolError = msg.Content
+				msgText := contentToString(msg.Content)
+				if contains(toLower(msgText), "error") || contains(toLower(msgText), "failed") {
+					toolError = msgText
 				}
 			}
 		}
@@ -480,4 +482,12 @@ func toLower(s string) string {
 
 func generateID() string {
 	return fmt.Sprintf("%d", 1000000+len("mock"))
+}
+
+func contentToString(c sdk.MessageContent) string {
+	s, err := c.AsMessageContent0()
+	if err != nil {
+		return ""
+	}
+	return s
 }
