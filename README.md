@@ -163,7 +163,7 @@ docker build \
 
 **Available Build Arguments:**
 
-- `VERSION` - Agent version (default: `0.1.4`)
+- `VERSION` - Agent version (default: `0.1.5`)
 - `AGENT_NAME` - Agent name (default: `mock-agent`)
 - `AGENT_DESCRIPTION` - Agent description (default: `A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!`)
 

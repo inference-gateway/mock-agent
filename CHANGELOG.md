@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.5](https://github.com/inference-gateway/mock-agent/compare/v0.1.4...v0.1.5) (2026-05-14)
+
+### 🔧 Miscellaneous
+
+* **deps:** Bump ADL cli and re-generate ([08880b5](https://github.com/inference-gateway/mock-agent/commit/08880b5230774ca00eaff277d7292d7a1cc037b4))
+* No diffs ([7da6546](https://github.com/inference-gateway/mock-agent/commit/7da6546b7cede91f9f1ff701b09ed2a8334c05e7))
+* Set github issue templates to false ([2dce9f4](https://github.com/inference-gateway/mock-agent/commit/2dce9f41942d556becfa8e087e6351547db6b283))
+
 ## [0.1.4](https://github.com/inference-gateway/mock-agent/compare/v0.1.3...v0.1.4) (2026-05-14)
 
 ### 👷 CI

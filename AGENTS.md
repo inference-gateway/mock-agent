@@ -5,7 +5,7 @@ This file describes the agents available in this A2A (Agent-to-Agent) system.
 ## Agent Overview
 
 ### mock-agent
-**Version**: 0.1.4  
+**Version**: 0.1.5  
 **Description**: A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!
 
 This agent is built using the Agent Definition Language (ADL) and provides A2A communication capabilities.
@@ -177,7 +177,7 @@ task test:coverage
 
 ## Agent Metadata
 
-This agent was generated using ADL CLI v0.1.4 with the following configuration:
+This agent was generated using ADL CLI v0.1.5 with the following configuration:
 
 - **Language**: Go
 - **Template**: Minimal A2A Agent
