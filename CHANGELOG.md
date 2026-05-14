@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4](https://github.com/inference-gateway/mock-agent/compare/v0.1.3...v0.1.4) (2026-05-14)
+
+### 👷 CI
+
+* Add claude code to CI ([0d7cda4](https://github.com/inference-gateway/mock-agent/commit/0d7cda4c1dc8f1f655e655b0290d3261199874a3))
+* **dependabot:** Add dependabot to help with dependecies upgrades ([b5ee418](https://github.com/inference-gateway/mock-agent/commit/b5ee4181ae3a418163de1f72308edaf69435255a))
+* Update create-github-app-token action to v3.2.0 ([d8e0cf1](https://github.com/inference-gateway/mock-agent/commit/d8e0cf1a633c709ee5425fe1d6e59022ef740100))
+
+### 🔧 Miscellaneous
+
+* Add CODEOWNERS file for repository ownership ([732ed39](https://github.com/inference-gateway/mock-agent/commit/732ed39d1bc42318fe2311ffc1c974e77081766f))
+* **deps:** Bump golang in the docker group ([#1](https://github.com/inference-gateway/mock-agent/issues/1)) ([219dead](https://github.com/inference-gateway/mock-agent/commit/219deadae1b709ac2dddd362fa595fcfc7a5f73a))
+* **deps:** Bump the github-actions group with 4 updates ([#2](https://github.com/inference-gateway/mock-agent/issues/2)) ([56d4fe0](https://github.com/inference-gateway/mock-agent/commit/56d4fe0eb450f9fdbf00ea7bfcedd6fbb08e70e7))
+* **deps:** Bump the gomod group with 3 updates ([#3](https://github.com/inference-gateway/mock-agent/issues/3)) ([edc533b](https://github.com/inference-gateway/mock-agent/commit/edc533b7abedd754247cc4e17e80d4b9e84affd7))
+* Remove outdated issue templates for bug reports, feature requests, and refactor requests ([b03babe](https://github.com/inference-gateway/mock-agent/commit/b03babeee7d23163b2cc9e0c5ee599a56111dbd1))
+
 ## [0.1.3](https://github.com/inference-gateway/mock-agent/compare/v0.1.2...v0.1.3) (2026-05-07)
 
 ### 👷 CI
