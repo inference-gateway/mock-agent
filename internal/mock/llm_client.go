@@ -59,7 +59,7 @@ func (m *MockLLMClient) CreateChatCompletion(ctx context.Context, messages []sdk
 	}
 
 	return &sdk.CreateChatCompletionResponse{
-		Id:      "mock-" + generateID(),
+		ID:      "mock-" + generateID(),
 		Model:   "mock-model",
 		Object:  "chat.completion",
 		Created: 1234567890,
@@ -123,19 +123,19 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 			toolCalls := generateMockToolCalls(tools, lastContent)
 			if len(toolCalls) > 0 {
 				for idx, toolCall := range toolCalls {
+					toolCallID := toolCall.ID
+					toolCallType := string(toolCall.Type)
 					chunk := sdk.ChatCompletionMessageToolCallChunk{
 						Index: idx,
-						ID:    toolCall.Id,
-						Type:  string(toolCall.Type),
-						Function: struct {
-							Name      string `json:"name,omitempty"`
-							Arguments string `json:"arguments,omitempty"`
-						}{
+						ID:    &toolCallID,
+						Type:  &toolCallType,
+						Function: &sdk.ChatCompletionMessageToolCallFunction{
 							Name:      toolCall.Function.Name,
 							Arguments: toolCall.Function.Arguments,
 						},
 					}
 
+					chunks := []sdk.ChatCompletionMessageToolCallChunk{chunk}
 					respChan <- &sdk.CreateChatCompletionStreamResponse{
 						ID:      "mock-stream-" + generateID(),
 						Model:   "mock-model",
@@ -145,7 +145,7 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 							{
 								Index: 0,
 								Delta: sdk.ChatCompletionStreamResponseDelta{
-									ToolCalls: []sdk.ChatCompletionMessageToolCallChunk{chunk},
+									ToolCalls: &chunks,
 								},
 								FinishReason: "",
 							},
@@ -162,7 +162,7 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 						{
 							Index:        0,
 							Delta:        sdk.ChatCompletionStreamResponseDelta{},
-							FinishReason: string(sdk.ToolCalls),
+							FinishReason: sdk.ToolCalls,
 						},
 					},
 				}
@@ -204,7 +204,7 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 					Delta: sdk.ChatCompletionStreamResponseDelta{
 						Content: "",
 					},
-					FinishReason: string(sdk.Stop),
+					FinishReason: sdk.Stop,
 				},
 			},
 		}
@@ -243,7 +243,7 @@ func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) [
 
 				return []sdk.ChatCompletionMessageToolCall{
 					{
-						Id:   "call-" + generateID(),
+						ID:   "call-" + generateID(),
 						Type: sdk.Function,
 						Function: sdk.ChatCompletionMessageToolCallFunction{
 							Name:      "error",
@@ -274,7 +274,7 @@ func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) [
 
 				return []sdk.ChatCompletionMessageToolCall{
 					{
-						Id:   "call-" + generateID(),
+						ID:   "call-" + generateID(),
 						Type: sdk.Function,
 						Function: sdk.ChatCompletionMessageToolCallFunction{
 							Name:      "delay",
@@ -307,7 +307,7 @@ func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) [
 
 				return []sdk.ChatCompletionMessageToolCall{
 					{
-						Id:   "call-" + generateID(),
+						ID:   "call-" + generateID(),
 						Type: sdk.Function,
 						Function: sdk.ChatCompletionMessageToolCallFunction{
 							Name:      "validate",
@@ -342,7 +342,7 @@ func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) [
 
 				return []sdk.ChatCompletionMessageToolCall{
 					{
-						Id:   "call-" + generateID(),
+						ID:   "call-" + generateID(),
 						Type: sdk.Function,
 						Function: sdk.ChatCompletionMessageToolCallFunction{
 							Name:      "create_artifact",
@@ -384,7 +384,7 @@ func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) [
 
 				return []sdk.ChatCompletionMessageToolCall{
 					{
-						Id:   "call-" + generateID(),
+						ID:   "call-" + generateID(),
 						Type: sdk.Function,
 						Function: sdk.ChatCompletionMessageToolCallFunction{
 							Name:      "random_data",
@@ -410,7 +410,7 @@ func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) [
 
 			return []sdk.ChatCompletionMessageToolCall{
 				{
-					Id:   "call-" + generateID(),
+					ID:   "call-" + generateID(),
 					Type: sdk.Function,
 					Function: sdk.ChatCompletionMessageToolCallFunction{
 						Name:      "create_artifact",
@@ -429,7 +429,7 @@ func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) [
 
 			return []sdk.ChatCompletionMessageToolCall{
 				{
-					Id:   "call-" + generateID(),
+					ID:   "call-" + generateID(),
 					Type: sdk.Function,
 					Function: sdk.ChatCompletionMessageToolCallFunction{
 						Name:      "echo",
@@ -445,7 +445,7 @@ func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) [
 
 	return []sdk.ChatCompletionMessageToolCall{
 		{
-			Id:   "call-" + generateID(),
+			ID:   "call-" + generateID(),
 			Type: sdk.Function,
 			Function: sdk.ChatCompletionMessageToolCallFunction{
 				Name:      name,
