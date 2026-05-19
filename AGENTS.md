@@ -41,10 +41,9 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 
 This agent exposes 6 function-call tools:
 
-### 
-- **Description**: 
-- **Input Schema**: Defined in agent configuration
-- **Output Schema**: Defined in agent configuration
+### Read (built-in)
+- **Description**: Read a file from disk. Returns its contents, optionally sliced by line offset/limit. Use this to load SKILL.md bodies on demand.
+- **Parameters**: file_path, offset, limit
 
 ### echo
 - **Description**: Echo back the input message (useful for basic connectivity tests)
@@ -169,7 +168,7 @@ docker run -p 8080:8080 mock-agent
 .
 ├── main.go                       # Server entry point
 ├── tools/                        # Function-call tools
-│   └── .go                       # 
+│   └── read.go                   # Read a file from disk. Returns its contents, optionally sliced by line offset/limit. Use this to load SKILL.md bodies on demand.
 │   └── echo.go                   # Echo back the input message (useful for basic connectivity tests)
 │   └── delay.go                  # Simulate slow responses with configurable delays
 │   └── error.go                  # Simulate error conditions for testing error handling

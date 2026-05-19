@@ -10,7 +10,7 @@ mock-agent is an A2A (Agent-to-Agent) server implementing the [A2A Protocol](htt
 
 ### ADL-Generated Structure
 
-The codebase is generated using ADL CLI 0.30.0 and follows a strict generation pattern:
+The codebase is generated using ADL CLI 0.30.2 and follows a strict generation pattern:
 - **Generated Files**: Marked with `DO NOT EDIT` headers - manual changes will be overwritten
 - **Configuration Source**: `agent.yaml` - defines agent capabilities, skills, and metadata
 - **Server Implementation**: Built on the ADK (Agent Development Kit) framework from `github.com/inference-gateway/adk`
@@ -74,7 +74,7 @@ The agent uses OpenAI-compatible LLM client. Configure with:
 
 ### Tools (function-call)
 The following tools are currently defined:
-- ****: 
+- **Read** (built-in): Read a file from disk. Returns its contents, optionally sliced by line offset/limit. Use this to load SKILL.md bodies on demand.
 - **echo**: Echo back the input message (useful for basic connectivity tests)
 - **delay**: Simulate slow responses with configurable delays
 - **error**: Simulate error conditions for testing error handling
@@ -133,7 +133,7 @@ Activate with: `flox activate` (if Flox is installed)
 
 - **Generated Files**: Never manually edit files with "DO NOT EDIT" headers
 - **Configuration Changes**: Always modify `agent.yaml` and regenerate
-- **ADL Version**: Ensure ADL CLI 0.30.0 or compatible version for regeneration
+- **ADL Version**: Ensure ADL CLI 0.30.2 or compatible version for regeneration
 - **Port Configuration**: Default 8080, configurable via `A2A_PORT` or `A2A_SERVER_PORT`
 
 ## Debugging Tips
