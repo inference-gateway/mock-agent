@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6](https://github.com/inference-gateway/mock-agent/compare/v0.1.5...v0.1.6) (2026-05-19)
+
+### ♻️ Improvements
+
+* Split tools and skills, regenerate from new ADL apiVersion ([#6](https://github.com/inference-gateway/mock-agent/issues/6)) ([8c4adb2](https://github.com/inference-gateway/mock-agent/commit/8c4adb200d0d1ca181c569afdc742b86524a7089))
+
+### 🔧 Miscellaneous
+
+* **deps:** Bump github.com/inference-gateway/adk in the gomod group ([#5](https://github.com/inference-gateway/mock-agent/issues/5)) ([858c3a5](https://github.com/inference-gateway/mock-agent/commit/858c3a5a6aa2e38295f4ad18228e33ac196c7a9f))
+* **deps:** Bump golang in the docker group ([#4](https://github.com/inference-gateway/mock-agent/issues/4)) ([158028c](https://github.com/inference-gateway/mock-agent/commit/158028cf6bb77e6164243eeb7e2e3e90a3a7189c))
+
 ## [0.1.5](https://github.com/inference-gateway/mock-agent/compare/v0.1.4...v0.1.5) (2026-05-14)
 
 ### 🔧 Miscellaneous
