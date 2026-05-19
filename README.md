@@ -73,11 +73,16 @@ Configure the agent via environment variables:
 
 ### Custom Configuration
 
-The following custom configuration variables are available:
+The following custom configuration variables are available. Defaults are
+derived from `spec.config.*` in `agent.yaml`; the env vars below override
+them at runtime.
 
-| Category | Variable | Description | Default |
-|----------|----------|-------------|---------|
-| **Tools** | `TOOLS_READ` | Read configuration | `map[enabled:true max_lines:2000]` |
+| Category | Variable | Default |
+|----------|----------|---------|
+| **Tools** | `TOOLS_READ_ENABLED` | `true` |
+| **Tools** | `TOOLS_READ_MAX_LINES` | `2000` |
+
+### Environment Variables
 
 | Category | Variable | Description | Default |
 |----------|----------|-------------|---------|
