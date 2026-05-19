@@ -3,18 +3,26 @@
 # Files listed here typically contain implementations that users have completed.
 #
 # Patterns supported:
-# - Exact file names: skills/agent_skill.go
+# - Exact file names: toools/agent_tool.go
 # - Wildcards: *.go
-# - Directory patterns: skills/*
+# - Directory patterns: tools/*
 # - Directories: build/
 # - Comments: lines starting with #
 
-skills/echo.go
-skills/delay.go
-skills/error.go
-skills/random_data.go
-skills/validate.go
+tools/echo.go
+tools/delay.go
+tools/error.go
+tools/random_data.go
+tools/validate.go
 
+# Skill playbooks are hand-authored; the generator only seeds blank
+# scaffolds. Protect the whole skills/ tree so regen never clobbers
+# the bodies (or any bundled scripts/templates/resources).
+skills/
+
+# Hand-wired to use internal/mock.NewMockLLMClient instead of the
+# generator's default OpenAI-compatible client (mock-agent's whole
+# purpose is to run without real LLM credentials).
 main.go
 
 # Go dependency files

@@ -1,5 +1,5 @@
 ---
-apiVersion: adl.dev/v1
+apiVersion: adl.inference-gateway.com/v1
 kind: Agent
 metadata:
   name: mock-agent
@@ -18,7 +18,7 @@ spec:
     systemPrompt: |
       You are a mock AI assistant designed for testing and development purposes.
 
-      You have access to several mock skills that demonstrate different testing scenarios:
+      You have access to several mock tools that demonstrate different testing scenarios:
       - echo: Simply echo back the input message (useful for basic connectivity tests)
       - delay: Simulate slow responses with configurable delays
       - error: Simulate error conditions for testing error handling
@@ -32,85 +32,148 @@ spec:
       - Handle edge cases gracefully
 
       Your purpose is to provide consistent, reproducible responses for testing A2A protocol implementations.
-  skills:
+  config:
+    tools:
+      read:
+        enabled: true
+        max_lines: 2000
+  tools:
+    - id: read
     - id: echo
       name: echo
       description: Echo back the input message (useful for basic connectivity tests)
-      tags: ["mock", "testing", "echo"]
+      tags:
+        - mock
+        - testing
+        - echo
       schema:
         type: object
-        parameters:
-          - name: message
-            description: The message to echo back
-            required: true
+        properties:
+          message:
             type: string
+            description: The message to echo back
+        required:
+          - message
     - id: delay
       name: delay
       description: Simulate slow responses with configurable delays
-      tags: ["mock", "testing", "performance"]
+      tags:
+        - mock
+        - testing
+        - performance
       schema:
         type: object
-        parameters:
-          - name: duration_seconds
-            description: Number of seconds to delay (default 2)
-            required: false
+        properties:
+          duration_seconds:
             type: number
-          - name: message
-            description: Message to return after delay
-            required: false
+            description: Number of seconds to delay (default 2)
+          message:
             type: string
+            description: Message to return after delay
     - id: error
       name: error
       description: Simulate error conditions for testing error handling
-      tags: ["mock", "testing", "error-handling"]
+      tags:
+        - mock
+        - testing
+        - error-handling
       schema:
         type: object
-        parameters:
-          - name: error_type
-            description: Type of error to simulate (validation, timeout, internal, not_found)
-            required: true
+        properties:
+          error_type:
             type: string
-          - name: message
+            description: Type of error to simulate
+            enum:
+              - validation
+              - timeout
+              - internal
+              - not_found
+          message:
+            type: string
             description: Custom error message
-            required: false
-            type: string
+        required:
+          - error_type
     - id: random_data
       name: random_data
       description: Generate random test data
-      tags: ["mock", "testing", "data-generation"]
+      tags:
+        - mock
+        - testing
+        - data-generation
       schema:
         type: object
-        parameters:
-          - name: data_type
-            description: Type of data to generate (uuid, email, name, number, json)
-            required: true
+        properties:
+          data_type:
             type: string
-          - name: count
-            description: Number of items to generate (default 1)
-            required: false
+            description: Type of data to generate
+            enum:
+              - uuid
+              - email
+              - name
+              - number
+              - json
+          count:
             type: number
+            description: Number of items to generate (default 1)
+        required:
+          - data_type
     - id: validate
       name: validate
       description: Validate input against common patterns
-      tags: ["mock", "testing", "validation"]
+      tags:
+        - mock
+        - testing
+        - validation
       schema:
         type: object
-        parameters:
-          - name: input
+        properties:
+          input:
+            type: string
             description: The input to validate
-            required: true
+          validation_type:
             type: string
-          - name: validation_type
-            description: Type of validation (email, url, json, uuid, phone)
-            required: true
-            type: string
+            description: Type of validation
+            enum:
+              - email
+              - url
+              - json
+              - uuid
+              - phone
+        required:
+          - input
+          - validation_type
+  skills:
+    - id: connectivity-check
+      bare: true
+      name: connectivity-check
+      description: "Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded."
+      tags:
+        - mock
+        - testing
+        - connectivity
+    - id: error-injection
+      bare: true
+      name: error-injection
+      description: "Use this when the user wants to test how their client handles different failure modes. Invokes the error tool across the supported error_type values (validation, timeout, internal, not_found) so the caller can observe each error path."
+      tags:
+        - mock
+        - testing
+        - error-handling
+    - id: load-simulation
+      bare: true
+      name: load-simulation
+      description: "Use this when the user wants to test client behavior under slow responses with realistic payloads. Combines the delay tool (to introduce latency) with the random_data tool (to produce a test payload of the requested shape)."
+      tags:
+        - mock
+        - testing
+        - performance
   server:
     port: 8080
     debug: false
   language:
     go:
       module: github.com/inference-gateway/mock-agent
-      version: "1.26.1"
+      version: "1.26.2"
   scm:
     provider: github
     url: https://github.com/inference-gateway/mock-agent

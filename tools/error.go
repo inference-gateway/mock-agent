@@ -1,4 +1,4 @@
-package skills
+package tools
 
 import (
 	"context"
@@ -8,26 +8,37 @@ import (
 	server "github.com/inference-gateway/adk/server"
 )
 
-// ErrorSkill struct holds the skill with services
-type ErrorSkill struct {
+// ErrorTool struct holds the tool with services
+type ErrorTool struct {
 }
 
-// NewErrorSkill creates a new error skill
-func NewErrorSkill() server.Tool {
-	skill := &ErrorSkill{}
+// NewErrorTool creates a new error tool
+func NewErrorTool() server.Tool {
+	tool := &ErrorTool{}
 	return server.NewBasicTool(
 		"error",
 		"Simulate error conditions for testing error handling",
 		map[string]any{
-			"type":       "object",
-			"properties": map[string]any{},
+			"type": "object",
+			"properties": map[string]any{
+				"error_type": map[string]any{
+					"description": "Type of error to simulate",
+					"enum":        []string{"validation", "timeout", "internal", "not_found"},
+					"type":        "string",
+				},
+				"message": map[string]any{
+					"description": "Custom error message",
+					"type":        "string",
+				},
+			},
+			"required": []string{"error_type"},
 		},
-		skill.ErrorHandler,
+		tool.ErrorHandler,
 	)
 }
 
-// ErrorHandler handles the error skill execution
-func (s *ErrorSkill) ErrorHandler(ctx context.Context, args map[string]any) (string, error) {
+// ErrorHandler handles the error tool execution
+func (t *ErrorTool) ErrorHandler(ctx context.Context, args map[string]any) (string, error) {
 	errorType, ok := args["error_type"].(string)
 	if !ok {
 		return "", fmt.Errorf("error_type parameter is required and must be a string")

@@ -1,4 +1,4 @@
-package skills
+package tools
 
 import (
 	"context"
@@ -11,26 +11,37 @@ import (
 	server "github.com/inference-gateway/adk/server"
 )
 
-// ValidateSkill struct holds the skill with services
-type ValidateSkill struct {
+// ValidateTool struct holds the tool with services
+type ValidateTool struct {
 }
 
-// NewValidateSkill creates a new validate skill
-func NewValidateSkill() server.Tool {
-	skill := &ValidateSkill{}
+// NewValidateTool creates a new validate tool
+func NewValidateTool() server.Tool {
+	tool := &ValidateTool{}
 	return server.NewBasicTool(
 		"validate",
 		"Validate input against common patterns",
 		map[string]any{
-			"type":       "object",
-			"properties": map[string]any{},
+			"type": "object",
+			"properties": map[string]any{
+				"input": map[string]any{
+					"description": "The input to validate",
+					"type":        "string",
+				},
+				"validation_type": map[string]any{
+					"description": "Type of validation",
+					"enum":        []string{"email", "url", "json", "uuid", "phone"},
+					"type":        "string",
+				},
+			},
+			"required": []string{"input", "validation_type"},
 		},
-		skill.ValidateHandler,
+		tool.ValidateHandler,
 	)
 }
 
-// ValidateHandler handles the validate skill execution
-func (s *ValidateSkill) ValidateHandler(ctx context.Context, args map[string]any) (string, error) {
+// ValidateHandler handles the validate tool execution
+func (t *ValidateTool) ValidateHandler(ctx context.Context, args map[string]any) (string, error) {
 	input, ok := args["input"].(string)
 	if !ok {
 		return "", fmt.Errorf("input parameter is required and must be a string")
