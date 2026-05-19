@@ -19,7 +19,7 @@ This agent is built using the Agent Definition Language (ADL) and provides A2A c
 
 **System Prompt**: You are a mock AI assistant designed for testing and development purposes.
 
-You have access to several mock skills that demonstrate different testing scenarios:
+You have access to several mock tools that demonstrate different testing scenarios:
 - echo: Simply echo back the input message (useful for basic connectivity tests)
 - delay: Simulate slow responses with configurable delays
 - error: Simulate error conditions for testing error handling
@@ -37,9 +37,14 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 
 **Configuration:**
 
-## Skills
+## Tools
 
-This agent provides 5 skills:
+This agent exposes 6 function-call tools:
+
+### 
+- **Description**: 
+- **Input Schema**: Defined in agent configuration
+- **Output Schema**: Defined in agent configuration
 
 ### echo
 - **Description**: Echo back the input message (useful for basic connectivity tests)
@@ -70,6 +75,25 @@ This agent provides 5 skills:
 - **Tags**: mock, testing, validation
 - **Input Schema**: Defined in agent configuration
 - **Output Schema**: Defined in agent configuration
+
+## Skills
+
+This agent ships 3 markdown skills that are loaded into the system prompt at startup:
+
+### connectivity-check
+- **Description**: Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded.
+- **Tags**: mock, testing, connectivity
+- **Source**: scaffolded locally (`skills/connectivity-check/SKILL.md`)
+
+### error-injection
+- **Description**: Use this when the user wants to test how their client handles different failure modes. Invokes the error tool across the supported error_type values (validation, timeout, internal, not_found) so the caller can observe each error path.
+- **Tags**: mock, testing, error-handling
+- **Source**: scaffolded locally (`skills/error-injection/SKILL.md`)
+
+### load-simulation
+- **Description**: Use this when the user wants to test client behavior under slow responses with realistic payloads. Combines the delay tool (to introduce latency) with the random_data tool (to produce a test payload of the requested shape).
+- **Tags**: mock, testing, performance
+- **Source**: scaffolded locally (`skills/load-simulation/SKILL.md`)
 
 ## Server Configuration
 
@@ -144,12 +168,20 @@ docker run -p 8080:8080 mock-agent
 ```
 .
 ├── main.go                       # Server entry point
-├── skills/                       # Business logic skills
+├── tools/                        # Function-call tools
+│   └── .go                       # 
 │   └── echo.go                   # Echo back the input message (useful for basic connectivity tests)
 │   └── delay.go                  # Simulate slow responses with configurable delays
 │   └── error.go                  # Simulate error conditions for testing error handling
 │   └── random_data.go            # Generate random test data
 │   └── validate.go               # Validate input against common patterns
+├── skills/                       # Skill directories (SKILL.md + optional assets)
+│   └── connectivity-check/       # Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded.
+│       └── SKILL.md              # Playbook prepended to the system prompt
+│   └── error-injection/          # Use this when the user wants to test how their client handles different failure modes. Invokes the error tool across the supported error_type values (validation, timeout, internal, not_found) so the caller can observe each error path.
+│       └── SKILL.md              # Playbook prepended to the system prompt
+│   └── load-simulation/          # Use this when the user wants to test client behavior under slow responses with realistic payloads. Combines the delay tool (to introduce latency) with the random_data tool (to produce a test payload of the requested shape).
+│       └── SKILL.md              # Playbook prepended to the system prompt
 ├── .well-known/                  # Agent configuration
 │   └── agent-card.json           # Agent metadata
 ├── go.mod                        # Go module definition
@@ -181,7 +213,7 @@ This agent was generated using ADL CLI v0.1.5 with the following configuration:
 
 - **Language**: Go
 - **Template**: Minimal A2A Agent
-- **ADL Version**: adl.dev/v1
+- **ADL Version**: adl.inference-gateway.com/v1
 
 ---
 

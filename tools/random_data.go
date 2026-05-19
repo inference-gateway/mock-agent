@@ -1,4 +1,4 @@
-package skills
+package tools
 
 import (
 	"context"
@@ -11,26 +11,37 @@ import (
 	server "github.com/inference-gateway/adk/server"
 )
 
-// RandomDataSkill struct holds the skill with services
-type RandomDataSkill struct {
+// RandomDataTool struct holds the tool with services
+type RandomDataTool struct {
 }
 
-// NewRandomDataSkill creates a new random_data skill
-func NewRandomDataSkill() server.Tool {
-	skill := &RandomDataSkill{}
+// NewRandomDataTool creates a new random_data tool
+func NewRandomDataTool() server.Tool {
+	tool := &RandomDataTool{}
 	return server.NewBasicTool(
 		"random_data",
 		"Generate random test data",
 		map[string]any{
-			"type":       "object",
-			"properties": map[string]any{},
+			"type": "object",
+			"properties": map[string]any{
+				"count": map[string]any{
+					"description": "Number of items to generate (default 1)",
+					"type":        "number",
+				},
+				"data_type": map[string]any{
+					"description": "Type of data to generate",
+					"enum":        []string{"uuid", "email", "name", "number", "json"},
+					"type":        "string",
+				},
+			},
+			"required": []string{"data_type"},
 		},
-		skill.RandomDataHandler,
+		tool.RandomDataHandler,
 	)
 }
 
-// RandomDataHandler handles the random_data skill execution
-func (s *RandomDataSkill) RandomDataHandler(ctx context.Context, args map[string]any) (string, error) {
+// RandomDataHandler handles the random_data tool execution
+func (t *RandomDataTool) RandomDataHandler(ctx context.Context, args map[string]any) (string, error) {
 	dataType, ok := args["data_type"].(string)
 	if !ok {
 		return "", fmt.Errorf("data_type parameter is required and must be a string")

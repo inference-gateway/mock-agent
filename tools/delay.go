@@ -1,4 +1,4 @@
-package skills
+package tools
 
 import (
 	"context"
@@ -8,26 +8,35 @@ import (
 	server "github.com/inference-gateway/adk/server"
 )
 
-// DelaySkill struct holds the skill with services
-type DelaySkill struct {
+// DelayTool struct holds the tool with services
+type DelayTool struct {
 }
 
-// NewDelaySkill creates a new delay skill
-func NewDelaySkill() server.Tool {
-	skill := &DelaySkill{}
+// NewDelayTool creates a new delay tool
+func NewDelayTool() server.Tool {
+	tool := &DelayTool{}
 	return server.NewBasicTool(
 		"delay",
 		"Simulate slow responses with configurable delays",
 		map[string]any{
-			"type":       "object",
-			"properties": map[string]any{},
+			"type": "object",
+			"properties": map[string]any{
+				"duration_seconds": map[string]any{
+					"description": "Number of seconds to delay (default 2)",
+					"type":        "number",
+				},
+				"message": map[string]any{
+					"description": "Message to return after delay",
+					"type":        "string",
+				},
+			},
 		},
-		skill.DelayHandler,
+		tool.DelayHandler,
 	)
 }
 
-// DelayHandler handles the delay skill execution
-func (s *DelaySkill) DelayHandler(ctx context.Context, args map[string]any) (string, error) {
+// DelayHandler handles the delay tool execution
+func (t *DelayTool) DelayHandler(ctx context.Context, args map[string]any) (string, error) {
 	durationSeconds := 2.0
 	if val, ok := args["duration_seconds"]; ok {
 		if dur, ok := val.(float64); ok {

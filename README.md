@@ -3,7 +3,7 @@
 # Mock-Agent
 
 [![CI](https://github.com/inference-gateway/mock-agent/workflows/CI/badge.svg)](https://github.com/inference-gateway/mock-agent/actions/workflows/ci.yml)
-[![Go Version](https://img.shields.io/badge/Go-1.26.1+-00ADD8?style=flat&logo=go)](https://golang.org)
+[![Go Version](https://img.shields.io/badge/Go-1.26.2+-00ADD8?style=flat&logo=go)](https://golang.org)
 [![A2A Protocol](https://img.shields.io/badge/A2A-Protocol-blue?style=flat)](https://github.com/inference-gateway/adk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -48,19 +48,36 @@ infer agents add mock-agent http://localhost:8080 \
 - `GET /health` - Health check endpoint
 - `POST /a2a` - A2A protocol endpoint
 
-## Available Skills
+## Available Tools
 
-| Skill | Description | Parameters |
-|-------|-------------|------------|
-| `echo` | Echo back the input message (useful for basic connectivity tests) | None |
-| `delay` | Simulate slow responses with configurable delays | None |
-| `error` | Simulate error conditions for testing error handling | None |
-| `random_data` | Generate random test data | None |
-| `validate` | Validate input against common patterns | None |
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `Read` | Read a file from disk. Returns its contents, optionally sliced by line offset/limit. Use this to load SKILL.md bodies on demand. | file_path, offset, limit |
+| `echo` | Echo back the input message (useful for basic connectivity tests) | message |
+| `delay` | Simulate slow responses with configurable delays | duration_seconds, message |
+| `error` | Simulate error conditions for testing error handling | error_type, message |
+| `random_data` | Generate random test data | count, data_type |
+| `validate` | Validate input against common patterns | input, validation_type |
+
+## Skills (loaded into the system prompt)
+
+| Skill | Description | Source |
+|-------|-------------|--------|
+| `connectivity-check` | Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded. | bare scaffold (`skills/connectivity-check.md`) |
+| `error-injection` | Use this when the user wants to test how their client handles different failure modes. Invokes the error tool across the supported error_type values (validation, timeout, internal, not_found) so the caller can observe each error path. | bare scaffold (`skills/error-injection.md`) |
+| `load-simulation` | Use this when the user wants to test client behavior under slow responses with realistic payloads. Combines the delay tool (to introduce latency) with the random_data tool (to produce a test payload of the requested shape). | bare scaffold (`skills/load-simulation.md`) |
 
 ## Configuration
 
 Configure the agent via environment variables:
+
+### Custom Configuration
+
+The following custom configuration variables are available:
+
+| Category | Variable | Description | Default |
+|----------|----------|-------------|---------|
+| **Tools** | `TOOLS_READ` | Read configuration | `map[enabled:true max_lines:2000]` |
 
 | Category | Variable | Description | Default |
 |----------|----------|-------------|---------|
