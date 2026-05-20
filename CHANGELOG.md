@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8](https://github.com/inference-gateway/mock-agent/compare/v0.1.7...v0.1.8) (2026-05-20)
+
+### 👷 CI
+
+* **deps:** Update installation methods for golangci-lint and task in workflows ([6cf3397](https://github.com/inference-gateway/mock-agent/commit/6cf3397aec74ab06ab2c93226805f86fc5657537))
+
+### 🔧 Miscellaneous
+
+* **deps:** Bump ADL CLI to version 0.30.10 ([9944d72](https://github.com/inference-gateway/mock-agent/commit/9944d7237c0ff278afb0f80c7413bf220b98d626))
+* **deps:** Bump ADL CLI to version 0.30.9 ([2ed1467](https://github.com/inference-gateway/mock-agent/commit/2ed1467aa05a95f63b04ccb6815d62230c25f979))
+* Run task generate ([a000003](https://github.com/inference-gateway/mock-agent/commit/a00000340d71ab6495f7a343ccf539652ed73f0c))
+
 ## [0.1.7](https://github.com/inference-gateway/mock-agent/compare/v0.1.6...v0.1.7) (2026-05-19)
 
 ### 🔧 Miscellaneous
