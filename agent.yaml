@@ -192,4 +192,4 @@ spec:
       dockerCompose:
         enabled: false
     ai:
-      enabled: false
+      enabled: true
