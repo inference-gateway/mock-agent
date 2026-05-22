@@ -180,9 +180,9 @@ spec:
     url: https://github.com/inference-gateway/mock-agent
     github_app: true
     issue_templates: false
-    dependabot: false
-    ci: false
-    cd: false
+    dependabot: true
+    ci: true
+    cd: true
   development:
     sandbox:
       flox:
