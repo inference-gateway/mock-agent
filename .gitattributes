@@ -7,8 +7,13 @@ go.sum linguist-generated=true
 
 # Build and deployment files
 Dockerfile linguist-generated=true
+.dockerignore linguist-generated=true
 Taskfile.yml linguist-generated=true
 .gitignore linguist-generated=true
+
+# Docker Compose dev stack (generated)
+docker-compose.yaml linguist-generated=true
+.env.example linguist-generated=true
 
 # CI/CD workflows
 .github/workflows/ci.yml linguist-generated=true
