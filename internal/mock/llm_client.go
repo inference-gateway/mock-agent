@@ -1,18 +1,82 @@
 package mock
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 
-	"github.com/inference-gateway/adk/server"
-	"github.com/inference-gateway/sdk"
+	zap "go.uber.org/zap"
+	yaml "gopkg.in/yaml.v3"
+
+	server "github.com/inference-gateway/adk/server"
+	sdk "github.com/inference-gateway/sdk"
 )
 
-type MockLLMClient struct{}
+type MockLLMClient struct {
+	logger *zap.Logger
+}
 
-func NewMockLLMClient() server.LLMClient {
-	return &MockLLMClient{}
+func NewMockLLMClient(logger *zap.Logger) server.LLMClient {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+	return &MockLLMClient{logger: logger}
+}
+
+// skillWorkflow defines the ordered tool sequence the mock executes when a
+// user message matches one of the agent's known skills. Single-tool skills
+// list one step; multi-tool skills (load-simulation) list each step in the
+// order the SKILL.md prescribes.
+type skillWorkflow struct {
+	name  string
+	steps []string
+}
+
+var skillWorkflows = map[string]skillWorkflow{
+	"connectivity-check": {name: "connectivity-check", steps: []string{"echo"}},
+	"error-injection":    {name: "error-injection", steps: []string{"error"}},
+	"load-simulation":    {name: "load-simulation", steps: []string{"random_data", "delay"}},
+}
+
+var skillTriggers = map[string][]string{
+	"connectivity-check": {
+		"connectivity-check", "connectivity check", "connectivity",
+		"ping", "are you up", "are you there", "healthcheck",
+		"health check", "smoke test", "round-trip", "round trip",
+	},
+	"error-injection": {
+		"error-injection", "error injection",
+		"test error", "test errors", "test failure",
+		"simulate failure", "simulate error", "simulate an error",
+		"trigger error", "trigger an error", "throw an error",
+		"error handling", "failure mode",
+		"timeout error", "internal error", "not_found failure",
+		"not found failure",
+	},
+	"load-simulation": {
+		"load-simulation", "load simulation",
+		"load test", "slow response", "simulate latency",
+		"simulate slow", "delayed payload", "delay with data",
+		"delayed response",
+	},
+}
+
+var skillDetectionOrder = []string{"connectivity-check", "error-injection", "load-simulation"}
+
+// detectSkill returns the skill name implied by the user message and the
+// trigger phrase that matched, or empty strings when no skill is detected.
+func detectSkill(lowerMsg string) (skill, trigger string) {
+	for _, name := range skillDetectionOrder {
+		for _, t := range skillTriggers[name] {
+			if contains(lowerMsg, t) {
+				return name, t
+			}
+		}
+	}
+	return "", ""
 }
 
 func (m *MockLLMClient) CreateChatCompletion(ctx context.Context, messages []sdk.Message, tools ...sdk.ChatCompletionTool) (*sdk.CreateChatCompletionResponse, error) {
@@ -46,16 +110,16 @@ func (m *MockLLMClient) CreateChatCompletion(ctx context.Context, messages []sdk
 	var responseContent string
 	var toolCalls *[]sdk.ChatCompletionMessageToolCall
 
-	if len(tools) > 0 && !hasToolResults {
-		calls := generateMockToolCalls(tools, lastContent)
-		toolCalls = &calls
-		responseContent = ""
-	} else {
-		content := lastContent
-		if hasToolResults && userMessage != "" {
-			content = "Task completed successfully. I executed the requested operation based on: " + userMessage
+	if len(tools) > 0 {
+		calls := m.generateMockToolCalls(tools, userMessage, messages)
+		if len(calls) > 0 {
+			toolCalls = &calls
+			responseContent = ""
+		} else {
+			responseContent = finalTextResponse(lastContent, userMessage, hasToolResults)
 		}
-		responseContent = generateMockResponse(content)
+	} else {
+		responseContent = finalTextResponse(lastContent, userMessage, hasToolResults)
 	}
 
 	return &sdk.CreateChatCompletionResponse{
@@ -119,8 +183,8 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 			return
 		}
 
-		if len(tools) > 0 && !hasToolResults {
-			toolCalls := generateMockToolCalls(tools, lastContent)
+		if len(tools) > 0 {
+			toolCalls := m.generateMockToolCalls(tools, userMessage, messages)
 			if len(toolCalls) > 0 {
 				for idx, toolCall := range toolCalls {
 					toolCallID := toolCall.ID
@@ -170,12 +234,7 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 			}
 		}
 
-		responseContent := lastContent
-		if hasToolResults && userMessage != "" {
-			responseContent = "Task completed successfully."
-		}
-
-		response := generateMockResponse(responseContent)
+		response := finalTextResponse(lastContent, userMessage, hasToolResults)
 
 		respChan <- &sdk.CreateChatCompletionStreamResponse{
 			ID:      "mock-stream-" + generateID(),
@@ -213,246 +272,340 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 	return respChan, errChan
 }
 
+// finalTextResponse builds the text response returned when no tool call is
+// emitted. When a skill is detected in the user message AND at least one
+// tool result is in history, it returns a skill-specific completion summary
+// (much cleaner than the generic mock wrapping). Otherwise it falls back to
+// the legacy "This is a mock response to: ..." phrasing.
+func finalTextResponse(lastContent, userMessage string, hasToolResults bool) string {
+	if hasToolResults {
+		if msg, ok := skillCompletionMessage(userMessage); ok {
+			return msg
+		}
+	}
+	content := lastContent
+	if hasToolResults && userMessage != "" {
+		content = "Task completed successfully. I executed the requested operation based on: " + userMessage
+	}
+	return generateMockResponse(content)
+}
+
+// skillCompletionMessage returns a human-readable summary for whichever
+// skill the user message matched, or "" / false if no skill matched. Used
+// to keep the post-workflow text from being a noisy double-quoted wrapping
+// of the previous message.
+func skillCompletionMessage(userMessage string) (string, bool) {
+	skill, _ := detectSkill(toLower(userMessage))
+	switch skill {
+	case "connectivity-check":
+		return "Connectivity check complete. Echo round-trip succeeded.", true
+	case "error-injection":
+		return "Error injection complete. The error tool returned the requested failure.", true
+	case "load-simulation":
+		return "Load simulation complete. Random payload generated and delay applied.", true
+	}
+	return "", false
+}
+
 func generateMockResponse(userMessage string) string {
 	return fmt.Sprintf("This is a mock response to: %q. I'm a mock agent designed for testing purposes.", userMessage)
 }
 
-func generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string) []sdk.ChatCompletionMessageToolCall {
+// generateMockToolCalls picks the next tool to invoke. It first checks
+// whether the user message matches one of the agent's skills; on a match
+// it drives the skill's ordered workflow, advancing one step per call as
+// tool results accumulate in the message history. Falls back to direct
+// tool-keyword routing for ad-hoc requests like "validate this email".
+func (m *MockLLMClient) generateMockToolCalls(tools []sdk.ChatCompletionTool, userMessage string, messages []sdk.Message) []sdk.ChatCompletionMessageToolCall {
 	if len(tools) == 0 {
 		return nil
 	}
 
 	lowerMsg := toLower(userMessage)
 
+	if skill, trigger := detectSkill(lowerMsg); skill != "" {
+		m.logSkillMatch(skill, trigger, userMessage)
+		wf := skillWorkflows[skill]
+		completed := countToolResults(messages)
+		if completed >= len(wf.steps) {
+			return nil
+		}
+		nextTool := wf.steps[completed]
+		if call := buildToolCall(nextTool, userMessage, tools); call != nil {
+			return []sdk.ChatCompletionMessageToolCall{*call}
+		}
+		return nil
+	}
+
+	// For non-skill messages, preserve legacy single-shot behavior: once any
+	// tool result is in history, don't emit further tool calls - let the
+	// caller produce a text response. Without this, fallback branches below
+	// (artifact/echo/first-tool) keep firing after every result, looping the
+	// agent indefinitely.
+	if countToolResults(messages) > 0 {
+		return nil
+	}
+
 	if contains(lowerMsg, "error") || contains(lowerMsg, "fail") || contains(lowerMsg, "throw") {
-		for _, tool := range tools {
-			if tool.Function.Name == "error" {
-				errorType := "validation"
-				if contains(lowerMsg, "timeout") {
-					errorType = "timeout"
-				} else if contains(lowerMsg, "internal") || contains(lowerMsg, "server") {
-					errorType = "internal"
-				} else if contains(lowerMsg, "not found") || contains(lowerMsg, "404") {
-					errorType = "not_found"
-				}
-
-				args, _ := json.Marshal(map[string]any{
-					"error_type": errorType,
-					"message":    userMessage,
-				})
-
-				return []sdk.ChatCompletionMessageToolCall{
-					{
-						ID:   "call-" + generateID(),
-						Type: sdk.Function,
-						Function: sdk.ChatCompletionMessageToolCallFunction{
-							Name:      "error",
-							Arguments: string(args),
-						},
-					},
-				}
-			}
+		if call := buildToolCall("error", userMessage, tools); call != nil {
+			return []sdk.ChatCompletionMessageToolCall{*call}
 		}
 	}
 
 	if contains(lowerMsg, "delay") || contains(lowerMsg, "wait") || contains(lowerMsg, "sleep") || contains(lowerMsg, "pause") {
-		for _, tool := range tools {
-			if tool.Function.Name == "delay" {
-				duration := 2.0
-				if contains(lowerMsg, "5") {
-					duration = 5.0
-				} else if contains(lowerMsg, "10") {
-					duration = 10.0
-				} else if contains(lowerMsg, "3") {
-					duration = 3.0
-				}
-
-				args, _ := json.Marshal(map[string]any{
-					"duration_seconds": duration,
-					"message":          userMessage,
-				})
-
-				return []sdk.ChatCompletionMessageToolCall{
-					{
-						ID:   "call-" + generateID(),
-						Type: sdk.Function,
-						Function: sdk.ChatCompletionMessageToolCallFunction{
-							Name:      "delay",
-							Arguments: string(args),
-						},
-					},
-				}
-			}
+		if call := buildToolCall("delay", userMessage, tools); call != nil {
+			return []sdk.ChatCompletionMessageToolCall{*call}
 		}
 	}
 
-	if contains(lowerMsg, "validate") || contains(lowerMsg, "check") {
-		for _, tool := range tools {
-			if tool.Function.Name == "validate" {
-				pattern := "email"
-				if contains(lowerMsg, "url") || contains(lowerMsg, "http") {
-					pattern = "url"
-				} else if contains(lowerMsg, "json") {
-					pattern = "json"
-				} else if contains(lowerMsg, "uuid") {
-					pattern = "uuid"
-				} else if contains(lowerMsg, "phone") {
-					pattern = "phone"
-				}
-
-				args, _ := json.Marshal(map[string]any{
-					"pattern": pattern,
-					"input":   userMessage,
-				})
-
-				return []sdk.ChatCompletionMessageToolCall{
-					{
-						ID:   "call-" + generateID(),
-						Type: sdk.Function,
-						Function: sdk.ChatCompletionMessageToolCallFunction{
-							Name:      "validate",
-							Arguments: string(args),
-						},
-					},
-				}
-			}
+	if contains(lowerMsg, "validate") || contains(lowerMsg, "is valid") {
+		if call := buildToolCall("validate", userMessage, tools); call != nil {
+			return []sdk.ChatCompletionMessageToolCall{*call}
 		}
 	}
 
 	if contains(lowerMsg, "artifact") || contains(lowerMsg, "create file") || contains(lowerMsg, "save file") {
-		for _, tool := range tools {
-			if tool.Function.Name == "create_artifact" {
-				name := "sample-data.json"
-				content := `{"id": 1, "name": "John Doe", "email": "john.doe@example.com"}`
-
-				if contains(lowerMsg, "text") || contains(lowerMsg, "txt") {
-					name = "sample-data.txt"
-					content = "This is a sample text artifact created by the mock agent."
-				} else if contains(lowerMsg, "csv") {
-					name = "sample-data.csv"
-					content = "id,name,email\n1,John Doe,john.doe@example.com\n2,Jane Smith,jane.smith@example.com"
-				}
-
-				args, _ := json.Marshal(map[string]any{
-					"name":     name,
-					"content":  content,
-					"type":     "url",
-					"filename": name,
-				})
-
-				return []sdk.ChatCompletionMessageToolCall{
-					{
-						ID:   "call-" + generateID(),
-						Type: sdk.Function,
-						Function: sdk.ChatCompletionMessageToolCallFunction{
-							Name:      "create_artifact",
-							Arguments: string(args),
-						},
-					},
-				}
-			}
+		if call := buildArtifactCall(userMessage, tools); call != nil {
+			return []sdk.ChatCompletionMessageToolCall{*call}
 		}
 	}
 
 	if contains(lowerMsg, "random") || contains(lowerMsg, "generate") {
-		for _, tool := range tools {
-			if tool.Function.Name == "random_data" {
-				dataType := "uuid"
-				count := 5
-				if contains(lowerMsg, "email") {
-					dataType = "email"
-				} else if contains(lowerMsg, "name") {
-					dataType = "name"
-				} else if contains(lowerMsg, "number") {
-					dataType = "number"
-				} else if contains(lowerMsg, "json") {
-					dataType = "json"
-				}
-
-				if contains(lowerMsg, "10") {
-					count = 10
-				} else if contains(lowerMsg, "3") {
-					count = 3
-				} else if contains(lowerMsg, "1") && !contains(lowerMsg, "10") {
-					count = 1
-				}
-
-				args, _ := json.Marshal(map[string]any{
-					"data_type": dataType,
-					"count":     count,
-				})
-
-				return []sdk.ChatCompletionMessageToolCall{
-					{
-						ID:   "call-" + generateID(),
-						Type: sdk.Function,
-						Function: sdk.ChatCompletionMessageToolCallFunction{
-							Name:      "random_data",
-							Arguments: string(args),
-						},
-					},
-				}
-			}
+		if call := buildToolCall("random_data", userMessage, tools); call != nil {
+			return []sdk.ChatCompletionMessageToolCall{*call}
 		}
 	}
 
-	for _, tool := range tools {
-		if tool.Function.Name == "create_artifact" {
-			name := "default-file.json"
-			content := `{"message": "Default artifact content"}`
-
-			args, _ := json.Marshal(map[string]any{
-				"name":     name,
-				"content":  content,
-				"type":     "url",
-				"filename": name,
-			})
-
-			return []sdk.ChatCompletionMessageToolCall{
-				{
-					ID:   "call-" + generateID(),
-					Type: sdk.Function,
-					Function: sdk.ChatCompletionMessageToolCallFunction{
-						Name:      "create_artifact",
-						Arguments: string(args),
-					},
-				},
-			}
-		}
+	if call := buildArtifactCall(userMessage, tools); call != nil {
+		return []sdk.ChatCompletionMessageToolCall{*call}
+	}
+	if call := buildToolCall("echo", userMessage, tools); call != nil {
+		return []sdk.ChatCompletionMessageToolCall{*call}
 	}
 
-	for _, tool := range tools {
-		if tool.Function.Name == "echo" {
-			args, _ := json.Marshal(map[string]any{
-				"message": userMessage,
-			})
+	emptyArgs, _ := json.Marshal(map[string]any{})
+	return []sdk.ChatCompletionMessageToolCall{*newToolCall(tools[0].Function.Name, string(emptyArgs))}
+}
 
-			return []sdk.ChatCompletionMessageToolCall{
-				{
-					ID:   "call-" + generateID(),
-					Type: sdk.Function,
-					Function: sdk.ChatCompletionMessageToolCallFunction{
-						Name:      "echo",
-						Arguments: string(args),
-					},
-				},
-			}
+// countToolResults counts how many tool result messages already exist in
+// the conversation history. The mock treats this as the index of the next
+// workflow step to emit.
+func countToolResults(messages []sdk.Message) int {
+	n := 0
+	for _, msg := range messages {
+		if msg.Role == sdk.Tool {
+			n++
 		}
 	}
+	return n
+}
 
-	args, _ := json.Marshal(map[string]any{})
-	name := tools[0].Function.Name
+// buildToolCall constructs a tool call for the given tool name. Returns
+// nil when the tool is not registered in the supplied tool list.
+func buildToolCall(toolName, userMessage string, tools []sdk.ChatCompletionTool) *sdk.ChatCompletionMessageToolCall {
+	if !hasToolNamed(tools, toolName) {
+		return nil
+	}
+	switch toolName {
+	case "echo":
+		args, _ := json.Marshal(map[string]any{"message": userMessage})
+		return newToolCall("echo", string(args))
+	case "delay":
+		args, _ := json.Marshal(map[string]any{
+			"duration_seconds": extractDuration(userMessage),
+			"message":          userMessage,
+		})
+		return newToolCall("delay", string(args))
+	case "error":
+		args, _ := json.Marshal(map[string]any{
+			"error_type": extractErrorType(userMessage),
+			"message":    userMessage,
+		})
+		return newToolCall("error", string(args))
+	case "random_data":
+		dataType, count := extractRandomDataParams(userMessage)
+		args, _ := json.Marshal(map[string]any{
+			"data_type": dataType,
+			"count":     count,
+		})
+		return newToolCall("random_data", string(args))
+	case "validate":
+		args, _ := json.Marshal(map[string]any{
+			"validation_type": extractValidationType(userMessage),
+			"input":           userMessage,
+		})
+		return newToolCall("validate", string(args))
+	}
+	return nil
+}
 
-	return []sdk.ChatCompletionMessageToolCall{
-		{
-			ID:   "call-" + generateID(),
-			Type: sdk.Function,
-			Function: sdk.ChatCompletionMessageToolCallFunction{
-				Name:      name,
-				Arguments: string(args),
-			},
+func buildArtifactCall(userMessage string, tools []sdk.ChatCompletionTool) *sdk.ChatCompletionMessageToolCall {
+	if !hasToolNamed(tools, "create_artifact") {
+		return nil
+	}
+	lower := toLower(userMessage)
+	name := "sample-data.json"
+	content := `{"id": 1, "name": "John Doe", "email": "john.doe@example.com"}`
+	if contains(lower, "text") || contains(lower, "txt") {
+		name = "sample-data.txt"
+		content = "This is a sample text artifact created by the mock agent."
+	} else if contains(lower, "csv") {
+		name = "sample-data.csv"
+		content = "id,name,email\n1,John Doe,john.doe@example.com\n2,Jane Smith,jane.smith@example.com"
+	}
+	args, _ := json.Marshal(map[string]any{
+		"name":     name,
+		"content":  content,
+		"type":     "url",
+		"filename": name,
+	})
+	return newToolCall("create_artifact", string(args))
+}
+
+func extractErrorType(userMessage string) string {
+	lower := toLower(userMessage)
+	switch {
+	case contains(lower, "timeout"):
+		return "timeout"
+	case contains(lower, "internal") || contains(lower, "server"):
+		return "internal"
+	case contains(lower, "not found") || contains(lower, "not_found") || contains(lower, "404"):
+		return "not_found"
+	default:
+		return "validation"
+	}
+}
+
+func extractDuration(userMessage string) float64 {
+	lower := toLower(userMessage)
+	switch {
+	case contains(lower, "10"):
+		return 10.0
+	case contains(lower, "5"):
+		return 5.0
+	case contains(lower, "3"):
+		return 3.0
+	default:
+		return 2.0
+	}
+}
+
+func extractRandomDataParams(userMessage string) (string, int) {
+	lower := toLower(userMessage)
+	dataType := "uuid"
+	switch {
+	case contains(lower, "email"):
+		dataType = "email"
+	case contains(lower, "name"):
+		dataType = "name"
+	case contains(lower, "number"):
+		dataType = "number"
+	case contains(lower, "json"):
+		dataType = "json"
+	}
+	count := 5
+	switch {
+	case contains(lower, "10"):
+		count = 10
+	case contains(lower, "3"):
+		count = 3
+	case contains(lower, "1") && !contains(lower, "10"):
+		count = 1
+	}
+	return dataType, count
+}
+
+func extractValidationType(userMessage string) string {
+	lower := toLower(userMessage)
+	switch {
+	case contains(lower, "url") || contains(lower, "http"):
+		return "url"
+	case contains(lower, "json"):
+		return "json"
+	case contains(lower, "uuid"):
+		return "uuid"
+	case contains(lower, "phone"):
+		return "phone"
+	default:
+		return "email"
+	}
+}
+
+func hasToolNamed(tools []sdk.ChatCompletionTool, name string) bool {
+	for _, t := range tools {
+		if t.Function.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
+func newToolCall(name, arguments string) *sdk.ChatCompletionMessageToolCall {
+	return &sdk.ChatCompletionMessageToolCall{
+		ID:   "call-" + generateID(),
+		Type: sdk.Function,
+		Function: sdk.ChatCompletionMessageToolCallFunction{
+			Name:      name,
+			Arguments: arguments,
 		},
 	}
+}
+
+// logSkillMatch emits an info-level log line whenever the mock LLM routes
+// a request to a known skill. It also best-effort reads the skill's
+// SKILL.md frontmatter so the log carries the skill's own description -
+// useful when debugging which skill a request was assigned to.
+func (m *MockLLMClient) logSkillMatch(skill, trigger, userMessage string) {
+	path := filepath.Join("skills", skill, "SKILL.md")
+	desc, readErr := readSkillDescription(path)
+	fields := []zap.Field{
+		zap.String("skill", skill),
+		zap.String("trigger", trigger),
+		zap.String("user_message", userMessage),
+		zap.String("skill_md_path", path),
+		zap.String("skill_description", desc),
+	}
+	if readErr != nil {
+		fields = append(fields, zap.NamedError("skill_md_read_error", readErr))
+	}
+	m.logger.Info("mock LLM matched skill via pattern", fields...)
+}
+
+// readSkillDescription returns the description from the SKILL.md
+// frontmatter at path, or an error explaining why it could not. Best-effort:
+// callers should treat a non-nil error as a logging hint, not a failure.
+func readSkillDescription(path string) (string, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+	fm, ok := extractFrontmatter(data)
+	if !ok {
+		return "", fmt.Errorf("no frontmatter found in %s", path)
+	}
+	var meta struct {
+		Description string `yaml:"description"`
+	}
+	if err := yaml.Unmarshal(fm, &meta); err != nil {
+		return "", err
+	}
+	return meta.Description, nil
+}
+
+func extractFrontmatter(content []byte) ([]byte, bool) {
+	bom := []byte{0xEF, 0xBB, 0xBF}
+	buf := bytes.TrimPrefix(content, bom)
+	buf = bytes.TrimLeft(buf, "\r\n\t ")
+	if !bytes.HasPrefix(buf, []byte("---")) {
+		return nil, false
+	}
+	rest := buf[3:]
+	rest = bytes.TrimLeft(rest, "\r\n")
+	before, _, found := bytes.Cut(rest, []byte("\n---"))
+	if !found {
+		return nil, false
+	}
+	return before, true
 }
 
 func contains(s, substr string) bool {

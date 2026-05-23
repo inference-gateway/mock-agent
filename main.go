@@ -218,7 +218,7 @@ func runStart(ctx context.Context) error {
 	toolBox.AddTool(validateTool)
 	l.Info("registered tool: validate (Validate input against common patterns)")
 
-	llmClient := mock.NewMockLLMClient()
+	llmClient := mock.NewMockLLMClient(l)
 	l.Info("using mock LLM client (no external API calls)")
 
 	systemPrompt := `You are a mock AI assistant designed for testing and development purposes.

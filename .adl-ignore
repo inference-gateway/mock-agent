@@ -25,9 +25,6 @@ skills/
 # purpose is to run without real LLM credentials).
 main.go
 
-# Go dependency files
-go.mod
-
 # Add your own files to ignore here:
 # my-custom-file.go
 # config/secrets.yaml
