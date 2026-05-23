@@ -6,7 +6,7 @@
 [![Coverage](https://img.shields.io/codecov/c/github/inference-gateway/mock-agent?label=coverage&logo=codecov)](https://codecov.io/gh/inference-gateway/mock-agent)
 [![Go Version](https://img.shields.io/badge/Go-1.26.2+-00ADD8?style=flat&logo=go)](https://golang.org)
 [![A2A Protocol](https://img.shields.io/badge/A2A-Protocol-blue?style=flat)](https://github.com/inference-gateway/adk)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 **A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!**
 
@@ -211,4 +211,4 @@ These values are embedded into the binary at build time using linker flags, maki
 
 ## License
 
-MIT License - see LICENSE file for details
+Apache 2.0 License - see LICENSE file for details
