@@ -3,7 +3,7 @@
 # Files listed here typically contain implementations that users have completed.
 #
 # Patterns supported:
-# - Exact file names: toools/agent_tool.go
+# - Exact file names: tools/agent_tool.go
 # - Wildcards: *.go
 # - Directory patterns: tools/*
 # - Directories: build/
