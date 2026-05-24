@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9](https://github.com/inference-gateway/mock-agent/compare/v0.1.8...v0.1.9) (2026-05-24)
+
+### ♻️ Improvements
+
+* **Taskfile:** Remove explicit flags from generate command ([07a484f](https://github.com/inference-gateway/mock-agent/commit/07a484fb7b5bfef6fca8baf014e91190df3ff798))
+
+### 🐛 Bug Fixes
+
+* **mock:** fix skill-aware LLM client ([18126be](https://github.com/inference-gateway/mock-agent/commit/18126be396431fb0c7c8901ca8f7bfdeda7c3fad))
+
+### 👷 CI
+
+* **deps:** Bump anthropics/claude-code-action ([#9](https://github.com/inference-gateway/mock-agent/issues/9)) ([8da0d51](https://github.com/inference-gateway/mock-agent/commit/8da0d514d93bac1164f7e926bf1878e418e59eb8))
+* **deps:** Bump the github-actions group with 2 updates ([#20](https://github.com/inference-gateway/mock-agent/issues/20)) ([b9edfd1](https://github.com/inference-gateway/mock-agent/commit/b9edfd13e7fc464b7eaf32910217c4aabf65063f))
+* **deps:** Update claude-code-action to version 1.0.130 ([0a27e6e](https://github.com/inference-gateway/mock-agent/commit/0a27e6eaa7bf23506dcabbb3bb9dca2f62a1ae7e))
+
+### 📚 Documentation
+
+* **adl-ignore:** Fix `toools` typo in pattern example comment ([9f48148](https://github.com/inference-gateway/mock-agent/commit/9f481483d4fb9c316bfd47a3bd0f2f60f3669bbc))
+
+### 🔧 Miscellaneous
+
+* Add missing defaults ([e2ea64e](https://github.com/inference-gateway/mock-agent/commit/e2ea64e1332d41b5e9e8c4fc78d113362bd28f26))
+* **adl:** Refresh agent.yaml defaults from ADL CLI v0.33.1 ([#11](https://github.com/inference-gateway/mock-agent/issues/11)) ([60556eb](https://github.com/inference-gateway/mock-agent/commit/60556eb4880db23bc5f031d53421bfa296804684))
+* **adl:** Refresh agent.yaml defaults from ADL CLI v0.36.0 ([#21](https://github.com/inference-gateway/mock-agent/issues/21)) ([a46d9ac](https://github.com/inference-gateway/mock-agent/commit/a46d9acfbb20c8bf5e7565cdbb408e9bc7bfc28a))
+* **dependabot:** Update golang and ubuntu version ignore rules in dependabot configuration ([2cc1af1](https://github.com/inference-gateway/mock-agent/commit/2cc1af10b14b0f4a7c693d98d20cd7e45f741de5))
+* **deps:** Add ignore rule for golang dependency in dependabot configuration ([1448a9c](https://github.com/inference-gateway/mock-agent/commit/1448a9c2f9b14289be539a8dad5510c767f777d4))
+* **deps:** Bump ADL CLI v0.30.10 -> v0.31.0 ([#10](https://github.com/inference-gateway/mock-agent/issues/10)) ([351c914](https://github.com/inference-gateway/mock-agent/commit/351c914af053dfb854bcf9e9f1e08d58dbb8a172))
+* **deps:** Bump ADL CLI v0.31.0 -> v0.34.0 ([#13](https://github.com/inference-gateway/mock-agent/issues/13)) ([deacbf1](https://github.com/inference-gateway/mock-agent/commit/deacbf113a1ff1f88185beea62a81dca60e39e88))
+* **deps:** Bump ADL CLI v0.31.0 -> v0.34.1 ([#14](https://github.com/inference-gateway/mock-agent/issues/14)) ([dbb494d](https://github.com/inference-gateway/mock-agent/commit/dbb494d3dc81e20eaeab85cd79b737f812d4118c))
+* **deps:** Bump ADL CLI v0.34.1 -> v0.34.2 ([#19](https://github.com/inference-gateway/mock-agent/issues/19)) ([5d98a59](https://github.com/inference-gateway/mock-agent/commit/5d98a59eb9c0195f9e75ff16bb8616556cb819d3))
+* **deps:** Bump ADL CLI v0.34.2 -> v0.36.2 ([#22](https://github.com/inference-gateway/mock-agent/issues/22)) ([1c057f8](https://github.com/inference-gateway/mock-agent/commit/1c057f8486a91b0d1f1f8fa980f4bc174a68283d))
+* **deps:** Bump ADL CLI v0.36.4 -> v0.38.1 ([#23](https://github.com/inference-gateway/mock-agent/issues/23)) ([766e7ae](https://github.com/inference-gateway/mock-agent/commit/766e7aee7ffe99d67ec36d3acbef28e7fd5c9090))
+* **deps:** Bump ADL CLI v0.38.1 -> v0.39.0 ([#24](https://github.com/inference-gateway/mock-agent/issues/24)) ([3a71f8c](https://github.com/inference-gateway/mock-agent/commit/3a71f8ca90c4613b56ea5ab2056f76af5af61f63))
+* **deps:** Bump ADL CLI v0.39.0 -> v0.39.1 ([#25](https://github.com/inference-gateway/mock-agent/issues/25)) ([0507310](https://github.com/inference-gateway/mock-agent/commit/0507310d1adb32dcd37eec699e62918a116328cb))
+* **deps:** Bump the gomod group with 2 updates ([#8](https://github.com/inference-gateway/mock-agent/issues/8)) ([e602785](https://github.com/inference-gateway/mock-agent/commit/e60278542d724b4505bb51849c3562b06acfda7b))
+* **deps:** Upgrade to ADL CLI version 0.36.4 ([23f55dc](https://github.com/inference-gateway/mock-agent/commit/23f55dc4a75bd760ae4f694b9f581019b1fac8a4))
+* **flox:** Add manifest.lock file ([5205341](https://github.com/inference-gateway/mock-agent/commit/520534168d2d1d95fa2b5d1a815e642e48fd33c2))
+* **license:** Update license to Apache 2.0 ([15aa4b9](https://github.com/inference-gateway/mock-agent/commit/15aa4b9db9f9799e42b0962054a566a89d99eb77))
+* Revert "chore(deps): Bump ADL CLI v0.31.0 -> v0.34.0 ([#13](https://github.com/inference-gateway/mock-agent/issues/13))" ([#16](https://github.com/inference-gateway/mock-agent/issues/16)) ([273b922](https://github.com/inference-gateway/mock-agent/commit/273b922e400775d85937fb51dd914c2ef26920f5))
+
 ## [0.1.8](https://github.com/inference-gateway/mock-agent/compare/v0.1.7...v0.1.8) (2026-05-20)
 
 ### 👷 CI
