@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.11](https://github.com/inference-gateway/mock-agent/compare/v0.1.10...v0.1.11) (2026-05-26)
+
+### 🔧 Miscellaneous
+
+* **deps:** Bump ADL CLI v0.39.2 -> v0.39.3 ([#27](https://github.com/inference-gateway/mock-agent/issues/27)) ([12e5659](https://github.com/inference-gateway/mock-agent/commit/12e5659033c2c5939c49082a9d705a33602e55f1))
+* Replace em dash with regular dash ([ed79676](https://github.com/inference-gateway/mock-agent/commit/ed7967602f08f8de6e8aa753f4649e4fcd15d659))
+
 ## [0.1.10](https://github.com/inference-gateway/mock-agent/compare/v0.1.9...v0.1.10) (2026-05-24)
 
 ### 🔧 Miscellaneous
