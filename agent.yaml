@@ -195,14 +195,15 @@ spec:
       dockerCompose:
         enabled: true
     ai:
-      claudecode:
-        enabled: true
-      codex:
-        enabled: false
-      gemini:
-        enabled: false
-      opencode:
-        enabled: false
-      infer:
-        enabled: true
+      orchestrators:
+        claudecode:
+          enabled: true
+        codex:
+          enabled: false
+        gemini:
+          enabled: false
+        opencode:
+          enabled: false
+        infer:
+          enabled: true
     deps: []
