@@ -158,6 +158,29 @@ them at runtime.
 | **Telemetry** | `A2A_TELEMETRY_LOG_ENABLE` | Enable OTLP log export (reserved) | `false` |
 | **Telemetry** | `A2A_TELEMETRY_LOG_ENDPOINT` | OTLP log endpoint URL (reserved) | `http://localhost:4318` |
 
+### Telemetry & Tracing
+
+Telemetry (Prometheus metrics + OTLP tracing) is **off by default** — that
+default comes from the ADK's built-in config, so flip it at runtime with the
+`A2A_TELEMETRY_*` variables above rather than editing the manifest:
+
+```bash
+A2A_TELEMETRY_ENABLE=true \
+A2A_TELEMETRY_TRACE_ENABLE=true \
+A2A_TELEMETRY_TRACE_ENDPOINT=http://localhost:4318 \
+  go run . start
+```
+
+With telemetry enabled, Prometheus metrics (prefixed `a2a.`) are served at
+`http://localhost:9090/metrics` and spans are exported over OTLP/HTTP to the
+configured endpoint. Because the agent honours incoming W3C `traceparent`
+headers, a caller that propagates trace context (e.g. the
+[infer CLI](https://github.com/inference-gateway/cli)) and a shared collector
+give you an end-to-end distributed trace across the CLI and this agent.
+
+See [`examples/opentelemetry/`](examples/opentelemetry/) for a ready-to-run
+stack (agent + OpenTelemetry Collector + Jaeger) that wires all of this up.
+
 ## Development
 
 ```bash

@@ -25,6 +25,10 @@ skills/
 # purpose is to run without real LLM credentials).
 main.go
 
+# Hand-authored example stacks (docker-compose, collector configs, docs)
+# that live outside the generated surface.
+examples/
+
 # Add your own files to ignore here:
 # my-custom-file.go
 # config/secrets.yaml
