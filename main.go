@@ -17,6 +17,7 @@ import (
 	"syscall"
 
 	server "github.com/inference-gateway/adk/server"
+	otel "github.com/inference-gateway/adk/server/otel"
 	envconfig "github.com/sethvargo/go-envconfig"
 	cobra "github.com/spf13/cobra"
 	zap "go.uber.org/zap"
@@ -171,6 +172,19 @@ func runStart(ctx context.Context) error {
 	l.Info("starting "+AgentName+" agent", zap.String("version", Version), zap.Bool("debug", cfg.A2A.Debug))
 	l.Debug("loaded configuration", zap.Any("config", cfg))
 
+	// Initialize OpenTelemetry
+	telemetry, err := otel.NewOpenTelemetry(&cfg.A2A, l)
+	if err != nil {
+		l.Warn("failed to initialize OpenTelemetry, continuing without telemetry", zap.Error(err))
+	} else if cfg.A2A.TelemetryConfig.Enable {
+		l.Info("OpenTelemetry enabled",
+			zap.String("metrics_port", cfg.A2A.TelemetryConfig.MetricsConfig.Port),
+			zap.Bool("traces_enabled", cfg.A2A.TelemetryConfig.TraceConfig.Enable),
+		)
+	} else {
+		l.Debug("OpenTelemetry disabled (set A2A_TELEMETRY_ENABLE=true to enable)")
+	}
+
 	resolvedSkillsDir := skillsDir
 	if v := os.Getenv("A2A_SKILLS_DIR"); v != "" {
 		resolvedSkillsDir = v
@@ -270,7 +284,7 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 		artifactsServer = nil
 	}
 
-	a2aServer, err := server.NewA2AServerBuilder(cfg.A2A, l).
+	a2aBuilder := server.NewA2AServerBuilder(cfg.A2A, l).
 		WithAgent(agent).
 		WithAgentCardFromFile(".well-known/agent-card.json", map[string]any{
 			"name":        AgentName,
@@ -280,8 +294,13 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 		}).
 		WithArtifactService(artifactService).
 		WithDefaultBackgroundTaskHandler().
-		WithDefaultStreamingTaskHandler().
-		Build()
+		WithDefaultStreamingTaskHandler()
+
+	if telemetry != nil {
+		a2aBuilder = a2aBuilder.WithTelemetry(telemetry)
+	}
+
+	a2aServer, err := a2aBuilder.Build()
 	if err != nil {
 		return fmt.Errorf("failed to create A2A server: %w", err)
 	}
@@ -313,6 +332,11 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 	a2aServer.Stop(ctx)
 	if artifactsServer != nil {
 		artifactsServer.Stop(ctx)
+	}
+	if telemetry != nil {
+		if err := telemetry.ShutDown(ctx); err != nil {
+			l.Warn("error shutting down OpenTelemetry", zap.Error(err))
+		}
 	}
 	l.Info("mock-agent agent stopped")
 	return nil

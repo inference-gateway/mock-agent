@@ -147,6 +147,16 @@ them at runtime.
 | **Artifacts** | `A2A_ARTIFACTS_RETENTION_MAX_AGE` | Max artifact age (0 = no age limit) | `168h` |
 | **Artifacts** | `A2A_ARTIFACTS_RETENTION_CLEANUP_INTERVAL` | Cleanup frequency (0 = manual only) | `24h` |
 | **Authentication** | `A2A_AUTH_ENABLE` | Enable OIDC authentication | `false` |
+| **Telemetry** | `A2A_TELEMETRY_ENABLE` | Enable OpenTelemetry metrics and tracing | `false` |
+| **Telemetry** | `A2A_TELEMETRY_METRICS_PORT` | Metrics server port (Prometheus endpoint) | `9090` |
+| **Telemetry** | `A2A_TELEMETRY_METRICS_HOST` | Metrics server host (empty = all interfaces) | `` |
+| **Telemetry** | `A2A_TELEMETRY_METRICS_READ_TIMEOUT` | Metrics server read timeout | `30s` |
+| **Telemetry** | `A2A_TELEMETRY_METRICS_WRITE_TIMEOUT` | Metrics server write timeout | `30s` |
+| **Telemetry** | `A2A_TELEMETRY_METRICS_IDLE_TIMEOUT` | Metrics server idle timeout | `60s` |
+| **Telemetry** | `A2A_TELEMETRY_TRACE_ENABLE` | Enable OTLP trace export | `false` |
+| **Telemetry** | `A2A_TELEMETRY_TRACE_ENDPOINT` | OTLP trace endpoint URL | `http://localhost:4318` |
+| **Telemetry** | `A2A_TELEMETRY_LOG_ENABLE` | Enable OTLP log export (reserved) | `false` |
+| **Telemetry** | `A2A_TELEMETRY_LOG_ENDPOINT` | OTLP log endpoint URL (reserved) | `http://localhost:4318` |
 
 ## Development
 
