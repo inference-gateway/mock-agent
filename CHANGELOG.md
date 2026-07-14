@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0](https://github.com/inference-gateway/mock-agent/compare/v0.1.11...v0.2.0) (2026-07-14)
+
+### ✨ Features
+
+* **telemetry:** add OpenTelemetry support via agent.yaml manifest ([#55](https://github.com/inference-gateway/mock-agent/issues/55)) ([36db7e8](https://github.com/inference-gateway/mock-agent/commit/36db7e8d597b176d1fcac522cd47a6fd227d6cce)), references [inference-gateway/cli#909](https://github.com/inference-gateway/cli/issues/909) [#51](https://github.com/inference-gateway/mock-agent/issues/51)
+
+### 🐛 Bug Fixes
+
+* **flox:** pin go-task to ^3.48.0 and bump manifest schema to 1.13.0 ([#44](https://github.com/inference-gateway/mock-agent/issues/44)) ([8c5c4ab](https://github.com/inference-gateway/mock-agent/commit/8c5c4abda790e22dd07451331367ad0a8d33fd9e))
+
+### 👷 CI
+
+* **claude:** change effort to max ([cf2aca2](https://github.com/inference-gateway/mock-agent/commit/cf2aca28e8326e530656bc9f6e06fbbb57c95417))
+* **claude:** remove system prompt - use default community maintained prompt ([0cfbcf7](https://github.com/inference-gateway/mock-agent/commit/0cfbcf7f84f567793e0dced2fe05510710c66f98))
+* **claude:** standardize workflow + task-based branch prefix ([8aee026](https://github.com/inference-gateway/mock-agent/commit/8aee026ddd3f72c3b3193c4fdb2cab3046f9d09c))
+* **deps:** bump actions/checkout in the github-actions group ([#35](https://github.com/inference-gateway/mock-agent/issues/35)) ([65b7fd8](https://github.com/inference-gateway/mock-agent/commit/65b7fd8b774cdd69b6693da4fe5ee802b6ca92a5))
+* **deps:** Bump anthropics/claude-code-action in the github-actions group ([#30](https://github.com/inference-gateway/mock-agent/issues/30)) ([b86d3c5](https://github.com/inference-gateway/mock-agent/commit/b86d3c56e43827971efd9cbb582d06e339332f84))
+* **deps:** bump anthropics/claude-code-action in the github-actions group ([#32](https://github.com/inference-gateway/mock-agent/issues/32)) ([4805f63](https://github.com/inference-gateway/mock-agent/commit/4805f63c0956d8d52f5b43e845a73c10c61eab1a))
+* **deps:** bump github.com/inference-gateway/sdk in the gomod group ([#31](https://github.com/inference-gateway/mock-agent/issues/31)) ([03ccbd5](https://github.com/inference-gateway/mock-agent/commit/03ccbd50e91774d25a86969bc4d7de9ed0580615))
+* **deps:** bump github.com/inference-gateway/sdk in the gomod group ([#36](https://github.com/inference-gateway/mock-agent/issues/36)) ([1dbf416](https://github.com/inference-gateway/mock-agent/commit/1dbf416380d32c29007d63025e62ee456cf88fc0))
+* **deps:** bump github.com/inference-gateway/sdk in the gomod group ([#37](https://github.com/inference-gateway/mock-agent/issues/37)) ([4580301](https://github.com/inference-gateway/mock-agent/commit/4580301cdb204d35051d9e6c4007ef0591755d66))
+* **deps:** bump github.com/inference-gateway/sdk in the gomod group ([#50](https://github.com/inference-gateway/mock-agent/issues/50)) ([90899f8](https://github.com/inference-gateway/mock-agent/commit/90899f8d972a5d67c5f0541e917c61c7f7f5e252))
+* **deps:** bump github.com/inference-gateway/sdk in the gomod group ([#53](https://github.com/inference-gateway/mock-agent/issues/53)) ([455c984](https://github.com/inference-gateway/mock-agent/commit/455c984b889c5b98d950f92d9f45a4d2b67be58a))
+* **deps:** bump github.com/quic-go/quic-go from 0.59.0 to 0.59.1 ([#33](https://github.com/inference-gateway/mock-agent/issues/33)) ([3a80b04](https://github.com/inference-gateway/mock-agent/commit/3a80b04892550c22fcec2faab0052f239cf64141))
+* **deps:** bump golang.org/x/crypto from 0.51.0 to 0.52.0 ([#43](https://github.com/inference-gateway/mock-agent/issues/43)) ([0fd1504](https://github.com/inference-gateway/mock-agent/commit/0fd1504b833da18982ace10f3ccf6600b973eec1))
+* **deps:** bump golang.org/x/net from 0.51.0 to 0.55.0 ([#40](https://github.com/inference-gateway/mock-agent/issues/40)) ([73833a7](https://github.com/inference-gateway/mock-agent/commit/73833a7a3ff9f25df8b2ea9be12d31c18e7de932))
+* **deps:** bump the github-actions group with 2 updates ([#38](https://github.com/inference-gateway/mock-agent/issues/38)) ([b2c3d2e](https://github.com/inference-gateway/mock-agent/commit/b2c3d2ec39cdf163649dee28d221996e341281e3))
+* **deps:** bump the github-actions group with 2 updates ([#41](https://github.com/inference-gateway/mock-agent/issues/41)) ([1b23d61](https://github.com/inference-gateway/mock-agent/commit/1b23d619f8b1f3e53f3a0692833c8d275c46f239))
+* **deps:** bump the github-actions group with 6 updates ([#39](https://github.com/inference-gateway/mock-agent/issues/39)) ([c023410](https://github.com/inference-gateway/mock-agent/commit/c0234103d0f1aa5a522c779eb9c6b28ce5d5275d))
+* **deps:** bump the gomod group with 3 updates ([#42](https://github.com/inference-gateway/mock-agent/issues/42)) ([c3eb2ef](https://github.com/inference-gateway/mock-agent/commit/c3eb2ef9b6b4f2bc84b34967ecbe108ac64a19da))
+* **deps:** downgrade task version from 3.51.1 to 3.48.0 in workflows and manifest ([7bd813e](https://github.com/inference-gateway/mock-agent/commit/7bd813ec527240d6309e0e6339a05b4bdd875806))
+* **release:** update semantic release and plugins to latest versions with local installation ([d13b918](https://github.com/inference-gateway/mock-agent/commit/d13b918920ddb7712d03ec676c27a613a7959a53))
+
+### 🔧 Miscellaneous
+
+* **deps:** bump ADL CLI to v0.46.0 ([#46](https://github.com/inference-gateway/mock-agent/issues/46)) ([f30c770](https://github.com/inference-gateway/mock-agent/commit/f30c770c3defcd386ebeb78f7d3144939239c838))
+* **deps:** bump ADL CLI to v0.46.5 ([#49](https://github.com/inference-gateway/mock-agent/issues/49)) ([ba8e7c8](https://github.com/inference-gateway/mock-agent/commit/ba8e7c8ce72da30eeece2aa561f9c100e38b82b6))
+* **deps:** bump ADL CLI to v0.47.1 ([#54](https://github.com/inference-gateway/mock-agent/issues/54)) ([c61da04](https://github.com/inference-gateway/mock-agent/commit/c61da0471e380d6c212150e692ab70d3d923252d))
+* **deps:** bump ADL CLI v0.39.3 -> v0.40.0 ([#28](https://github.com/inference-gateway/mock-agent/issues/28)) ([db16a9a](https://github.com/inference-gateway/mock-agent/commit/db16a9a4ee64cb7e926cc9571a8bc290fc24b701))
+* **deps:** bump ADL CLI v0.40.0 -> v0.43.2 ([#29](https://github.com/inference-gateway/mock-agent/issues/29)) ([dd0fc67](https://github.com/inference-gateway/mock-agent/commit/dd0fc679f5b65508350679b460a4acd5e97df860))
+* **deps:** bump ADL CLI v0.43.2 -> v0.44.0 ([#34](https://github.com/inference-gateway/mock-agent/issues/34)) ([8d33102](https://github.com/inference-gateway/mock-agent/commit/8d33102cd3ab9a36e5b0d821e352c62f103b11cf))
+* **deps:** bump ADL CLI v0.46.5 -> v0.47.0 ([#52](https://github.com/inference-gateway/mock-agent/issues/52)) ([3fcf418](https://github.com/inference-gateway/mock-agent/commit/3fcf418006552b186a7d04ac5958eb5da60aec40))
+* **deps:** bump docker/setup-qemu-action version v4.0.0 -> v4.1.0 ([0d3999d](https://github.com/inference-gateway/mock-agent/commit/0d3999da424010311d2d4d153465236d42653620))
+* **deps:** update Go version from 1.26.2 to 1.26.4 ([bde7a3e](https://github.com/inference-gateway/mock-agent/commit/bde7a3e6af10551071b3cce5cb6f74d6703d1748))
+* **flox:** add missing lock file changes ([86a8440](https://github.com/inference-gateway/mock-agent/commit/86a844054101fce85c01d5d32426b44ac4064855))
+* **schema:** update adl schema to latest ([a063018](https://github.com/inference-gateway/mock-agent/commit/a06301842c16172b139a6a35ce936652076fe71e))
+* small fix ([56cee02](https://github.com/inference-gateway/mock-agent/commit/56cee0224b66d0333d06397f183c450a35f4f145))
+
 ## [0.1.11](https://github.com/inference-gateway/mock-agent/compare/v0.1.10...v0.1.11) (2026-05-26)
 
 ### 🔧 Miscellaneous

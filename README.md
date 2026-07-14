@@ -97,6 +97,16 @@ them at runtime.
 
 | Category | Variable | Default |
 |----------|----------|---------|
+| **Telemetry** | `TELEMETRY_ENABLE` | `false` |
+| **Telemetry** | `TELEMETRY_LOG_ENABLE` | `false` |
+| **Telemetry** | `TELEMETRY_LOG_ENDPOINT` | `http://localhost:4318` |
+| **Telemetry** | `TELEMETRY_METRICS_HOST` | `` |
+| **Telemetry** | `TELEMETRY_METRICS_IDLE_TIMEOUT` | `60s` |
+| **Telemetry** | `TELEMETRY_METRICS_PORT` | `9090` |
+| **Telemetry** | `TELEMETRY_METRICS_READ_TIMEOUT` | `30s` |
+| **Telemetry** | `TELEMETRY_METRICS_WRITE_TIMEOUT` | `30s` |
+| **Telemetry** | `TELEMETRY_TRACE_ENABLE` | `false` |
+| **Telemetry** | `TELEMETRY_TRACE_ENDPOINT` | `http://localhost:4318` |
 | **Tools** | `TOOLS_READ_ENABLED` | `true` |
 | **Tools** | `TOOLS_READ_MAX_LINES` | `2000` |
 
@@ -147,39 +157,6 @@ them at runtime.
 | **Artifacts** | `A2A_ARTIFACTS_RETENTION_MAX_AGE` | Max artifact age (0 = no age limit) | `168h` |
 | **Artifacts** | `A2A_ARTIFACTS_RETENTION_CLEANUP_INTERVAL` | Cleanup frequency (0 = manual only) | `24h` |
 | **Authentication** | `A2A_AUTH_ENABLE` | Enable OIDC authentication | `false` |
-| **Telemetry** | `A2A_TELEMETRY_ENABLE` | Enable OpenTelemetry metrics and tracing | `false` |
-| **Telemetry** | `A2A_TELEMETRY_METRICS_PORT` | Metrics server port (Prometheus endpoint) | `9090` |
-| **Telemetry** | `A2A_TELEMETRY_METRICS_HOST` | Metrics server host (empty = all interfaces) | `` |
-| **Telemetry** | `A2A_TELEMETRY_METRICS_READ_TIMEOUT` | Metrics server read timeout | `30s` |
-| **Telemetry** | `A2A_TELEMETRY_METRICS_WRITE_TIMEOUT` | Metrics server write timeout | `30s` |
-| **Telemetry** | `A2A_TELEMETRY_METRICS_IDLE_TIMEOUT` | Metrics server idle timeout | `60s` |
-| **Telemetry** | `A2A_TELEMETRY_TRACE_ENABLE` | Enable OTLP trace export | `false` |
-| **Telemetry** | `A2A_TELEMETRY_TRACE_ENDPOINT` | OTLP trace endpoint URL | `http://localhost:4318` |
-| **Telemetry** | `A2A_TELEMETRY_LOG_ENABLE` | Enable OTLP log export (reserved) | `false` |
-| **Telemetry** | `A2A_TELEMETRY_LOG_ENDPOINT` | OTLP log endpoint URL (reserved) | `http://localhost:4318` |
-
-### Telemetry & Tracing
-
-Telemetry (Prometheus metrics + OTLP tracing) is **off by default** — that
-default comes from the ADK's built-in config, so flip it at runtime with the
-`A2A_TELEMETRY_*` variables above rather than editing the manifest:
-
-```bash
-A2A_TELEMETRY_ENABLE=true \
-A2A_TELEMETRY_TRACE_ENABLE=true \
-A2A_TELEMETRY_TRACE_ENDPOINT=http://localhost:4318 \
-  go run . start
-```
-
-With telemetry enabled, Prometheus metrics (prefixed `a2a.`) are served at
-`http://localhost:9090/metrics` and spans are exported over OTLP/HTTP to the
-configured endpoint. Because the agent honours incoming W3C `traceparent`
-headers, a caller that propagates trace context (e.g. the
-[infer CLI](https://github.com/inference-gateway/cli)) and a shared collector
-give you an end-to-end distributed trace across the CLI and this agent.
-
-See [`examples/opentelemetry/`](examples/opentelemetry/) for a ready-to-run
-stack (agent + OpenTelemetry Collector + Jaeger) that wires all of this up.
 
 ## Development
 
@@ -254,7 +231,7 @@ docker build \
 
 **Available Build Arguments:**
 
-- `VERSION` - Agent version (default: `0.1.11`)
+- `VERSION` - Agent version (default: `0.2.0`)
 - `AGENT_NAME` - Agent name (default: `mock-agent`)
 - `AGENT_DESCRIPTION` - Agent description (default: `A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!`)
 
