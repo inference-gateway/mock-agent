@@ -1,0 +1,121 @@
+# OpenTelemetry example stack for mock-agent.
+#
+# Runs the mock-agent with telemetry enabled, a shared OpenTelemetry
+# Collector as the trace sink, and Jaeger to visualise traces. Optional
+# profiles add the Inference Gateway + infer CLI (to drive the agent
+# end-to-end and see the CLI's spans stitched together with the agent's
+# `a2a.request` span in one distributed trace) and the a2a-debugger (to
+# generate a trace with no model/keys required).
+#
+#   # core stack (agent + collector + jaeger) — Jaeger UI: http://localhost:16686
+#   docker compose -f examples/opentelemetry/docker-compose.yaml up --build
+#
+#   # generate a trace without a model (separate terminal):
+#   docker compose -f examples/opentelemetry/docker-compose.yaml --profile debugger \
+#     run --rm debugger --server-url http://mock-agent:8080 tasks submit-streaming "What are your skills?"
+#
+#   # full CLI e2e (needs a provider key + model in ../../.env, and cli#909):
+#   docker compose -f examples/opentelemetry/docker-compose.yaml --profile cli up --build -d
+#   docker compose -f examples/opentelemetry/docker-compose.yaml --profile cli run --rm cli chat
+---
+name: mock-agent-otel
+
+services:
+  mock-agent:
+    build:
+      context: ../..
+    restart: unless-stopped
+    ports:
+      - "8080:8080" # A2A protocol endpoint
+      - "9090:9090" # Prometheus /metrics endpoint
+    environment:
+      A2A_SERVER_PORT: "8080"
+      A2A_DEBUG: "${A2A_DEBUG:-true}"
+      A2A_AGENT_CLIENT_BASE_URL: "${A2A_AGENT_CLIENT_BASE_URL:-http://gateway:8080/v1}"
+      # --- Telemetry: metrics on :9090, traces exported to the shared collector ---
+      A2A_TELEMETRY_ENABLE: "true"
+      A2A_TELEMETRY_METRICS_PORT: "9090"
+      A2A_TELEMETRY_TRACE_ENABLE: "true"
+      A2A_TELEMETRY_TRACE_ENDPOINT: "http://otel-collector:4318"
+    depends_on:
+      otel-collector:
+        condition: service_started
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    restart: unless-stopped
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317" # OTLP gRPC (in case you want to push from the host)
+      - "4318:4318" # OTLP HTTP
+    depends_on:
+      jaeger:
+        condition: service_started
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    restart: unless-stopped
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686" # Jaeger UI
+
+  # --- opt-in (profile: cli): drive the agent with the infer CLI ---
+  # Requires cli#909 (the telemetry feature) and a provider key + model
+  # in ../../.env. The CLI propagates W3C trace context to the agent and
+  # exports its own spans to the same collector, so the agent's
+  # `a2a.request` span nests under the CLI's tool span in one trace.
+  gateway:
+    image: ghcr.io/inference-gateway/inference-gateway:latest
+    profiles: [cli]
+    pull_policy: always
+    restart: unless-stopped
+    env_file:
+      - path: ../../.env
+        required: false
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: "8080"
+
+  cli:
+    image: ghcr.io/inference-gateway/cli:latest
+    profiles: [cli]
+    pull_policy: always
+    stdin_open: true
+    tty: true
+    env_file:
+      - path: ../../.env
+        required: false
+    environment:
+      INFER_GATEWAY_URL: "http://gateway:8080"
+      INFER_A2A_ENABLED: "true"
+      INFER_TOOLS_ENABLED: "true"
+      INFER_A2A_TOOLS_QUERY_AGENT_ENABLED: "true"
+      INFER_A2A_TOOLS_SUBMIT_TASK_ENABLED: "true"
+      INFER_A2A_TOOLS_QUERY_TASK_ENABLED: "true"
+      INFER_AGENT_MODEL: ${CLI_PROVIDER:-}/${CLI_MODEL:-}
+      INFER_A2A_AGENTS: |
+        http://mock-agent:8080
+      # Point the CLI's telemetry at the shared collector. Confirm the
+      # exact key/config against cli#909 before relying on it — that PR
+      # also supports a `telemetry.otlp.endpoint` config-file setting.
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+    depends_on:
+      gateway:
+        condition: service_started
+      mock-agent:
+        condition: service_started
+
+  # --- opt-in (profile: debugger): generate a trace with no model/keys ---
+  debugger:
+    image: ghcr.io/inference-gateway/a2a-debugger:latest
+    profiles: [debugger]
+    pull_policy: always
+    stdin_open: true
+    tty: true
+    depends_on:
+      mock-agent:
+        condition: service_started

@@ -1,0 +1,36 @@
+# OpenTelemetry Collector config for the mock-agent telemetry example.
+#
+# Receives OTLP from both the mock-agent (ADK OTLP/HTTP trace exporter)
+# and the infer CLI (cli#909), then fans traces out to Jaeger for
+# viewing and to the collector's own log for a quick sanity check.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch: {}
+
+exporters:
+  # Forward every trace to Jaeger over OTLP/gRPC.
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  # Echo spans to the collector log so you can confirm they arrive
+  # without opening the Jaeger UI (`docker compose logs otel-collector`).
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/jaeger, debug]
+  telemetry:
+    logs:
+      level: info
