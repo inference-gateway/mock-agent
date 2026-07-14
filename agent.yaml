@@ -174,7 +174,7 @@ spec:
   language:
     go:
       module: github.com/inference-gateway/mock-agent
-      version: 1.26.2
+      version: "1.26.4"
       vendor:
         deps: []
         devdeps: []
