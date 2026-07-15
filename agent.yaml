@@ -257,3 +257,36 @@ spec:
         infer:
           enabled: true
     deps: []
+  examples:
+    - title: Connectivity smoke test
+      description: >-
+        Send a known payload through the echo tool (the connectivity-check
+        skill) and confirm the round-trip, verifying the agent is reachable and
+        responding over A2A.
+    - title: Error-handling drill
+      description: >-
+        Drive the error tool across every error_type - validation, timeout,
+        internal, not_found - via the error-injection skill to see how your
+        client reacts to each failure mode.
+    - title: Latency and load simulation
+      description: >-
+        Combine the delay tool with random_data (the load-simulation skill) to
+        return realistic test payloads after a configurable delay, exercising
+        client timeouts and streaming under slow responses.
+    - title: Distributed-tracing demo with nested tool spans
+      description: >-
+        Send "read <path>" to route through the Read built-in and emit a
+        tool.read span nested under a2a.request, producing real per-tool
+        sub-spans for end-to-end OpenTelemetry tracing (see
+        examples/opentelemetry).
+  documentation:
+    pages:
+      - title: Getting Started
+        path: docs/getting-started.md
+        description: Install, build, and run the mock agent locally or with Docker.
+      - title: Configuration
+        path: docs/configuration.md
+        description: Environment variables and agent.yaml settings that control the mock agent.
+      - title: Usage
+        path: docs/usage.md
+        description: Drive the mock tools and skills over A2A, including the deterministic keyword routing.
