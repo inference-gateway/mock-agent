@@ -350,11 +350,6 @@ func (m *MockLLMClient) generateMockToolCalls(tools []sdk.ChatCompletionTool, us
 		return nil
 	}
 
-	// Agreed "read <path>" phrase: route through the real Read built-in so a
-	// genuine tool call - and the telemetry span it emits (tool.read) - is
-	// exercised, giving distributed traces a nested sub-tool span under the
-	// inbound a2a.request. Checked before the generic keyword routes so the
-	// phrase wins even when the path or surrounding words mention another tool.
 	if path, ok := readTriggerPath(userMessage); ok {
 		if call := buildReadToolCall(path, tools); call != nil {
 			m.logReadTrigger(path, userMessage)
