@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1](https://github.com/inference-gateway/mock-agent/compare/v0.2.0...v0.2.1) (2026-07-15)
+
+### ♻️ Improvements
+
+* **telemetry:** align agent.yaml with ADL per-signal exporter ([#64](https://github.com/inference-gateway/mock-agent/issues/64)) ([a60ff89](https://github.com/inference-gateway/mock-agent/commit/a60ff895726f2394926db364b627b2145b2a5427)), closes [#59](https://github.com/inference-gateway/mock-agent/issues/59), references [inference-gateway/adl#104](https://github.com/inference-gateway/adl/issues/104)
+
+### 👷 CI
+
+* **deps:** bump anthropics/claude-code-action in the github-actions group ([#58](https://github.com/inference-gateway/mock-agent/issues/58)) ([f563700](https://github.com/inference-gateway/mock-agent/commit/f5637007448a30d8f6c38e6bb12b5910a8a89e3e))
+* **deps:** bump anthropics/claude-code-action in the github-actions group ([#63](https://github.com/inference-gateway/mock-agent/issues/63)) ([e15e547](https://github.com/inference-gateway/mock-agent/commit/e15e54709086387cc3cf954f1ae907f6d27a49a2))
+* **deps:** bump github.com/inference-gateway/adk in the gomod group ([#65](https://github.com/inference-gateway/mock-agent/issues/65)) ([96f27d6](https://github.com/inference-gateway/mock-agent/commit/96f27d6b840d3c8a64eece9b03d76e06db20734d))
+* **deps:** bump github.com/inference-gateway/sdk in the gomod group ([#57](https://github.com/inference-gateway/mock-agent/issues/57)) ([6bfb315](https://github.com/inference-gateway/mock-agent/commit/6bfb315ecd2efdc200278f29cc4826a325aaff2b))
+* **deps:** bump github.com/inference-gateway/sdk in the gomod group ([#62](https://github.com/inference-gateway/mock-agent/issues/62)) ([bb30b4c](https://github.com/inference-gateway/mock-agent/commit/bb30b4ce62d27243ecee68e1c13110921a19c376))
+
+### 🔧 Miscellaneous
+
+* **deps:** bump ADL CLI v0.47.1 -> v0.48.0 ([#56](https://github.com/inference-gateway/mock-agent/issues/56)) ([ae7e8e9](https://github.com/inference-gateway/mock-agent/commit/ae7e8e99859ea75bdaa6b601c77a0f6efa3fb056))
+* **deps:** bump ADL CLI v0.48.0 -> v0.48.1 ([#61](https://github.com/inference-gateway/mock-agent/issues/61)) ([23c48f3](https://github.com/inference-gateway/mock-agent/commit/23c48f30928709a00fdbffa3e2407ccd454c917e))
+
 ## [0.2.0](https://github.com/inference-gateway/mock-agent/compare/v0.1.11...v0.2.0) (2026-07-14)
 
 ### ✨ Features
