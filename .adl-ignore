@@ -32,3 +32,5 @@ examples/
 # Add your own files to ignore here:
 # my-custom-file.go
 # config/secrets.yaml
+
+.github/workflows/infer.yml
