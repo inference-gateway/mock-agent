@@ -114,7 +114,9 @@ jobs:
         env:
           VERSION: v0.48.0
         run: |
-          curl -fsSL https://raw.githubusercontent.com/inference-gateway/adl-cli/v0.48.0/install.sh | bash
+          curl -fsSL \
+            -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+            https://raw.githubusercontent.com/inference-gateway/adl-cli/v0.48.0/install.sh | bash
           adl --version
 
       - name: Set up Go
