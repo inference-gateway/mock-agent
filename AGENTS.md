@@ -28,10 +28,17 @@ You have access to several mock tools that demonstrate different testing scenari
 - Read: Read a file from disk - the mock routes here when a request mentions
   "read <path>", exercising a real tool call (and its telemetry span) so
   distributed traces show a nested sub-tool span under a2a.request
+- simulate_tool_call: Simulate one tool call with a configurable name, latency
+  and optional error status. The mock drives it repeatedly to build multi
+  tool-call workloads for load, latency and failure testing.
 
 The mock routes on deterministic keywords, not model reasoning. Notably,
 "read <path>" runs the Read tool against <path> (defaulting to README.md),
-which is handy for end-to-end distributed-tracing demos.
+which is handy for end-to-end distributed-tracing demos. Saying
+"simulate N tool calls" (or setting MOCK_TOOL_CALLS=read,search,read) drives a
+sequence of instrumented simulate_tool_call spans - each with its own
+gen_ai.tool.name, duration and optional injected failure - so a task can look
+like a realistic multi-step agent in a trace.
 
 When responding:
 - Be clear and predictable in your responses
@@ -46,7 +53,7 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 
 ## Tools
 
-This agent exposes 6 function-call tools:
+This agent exposes 7 function-call tools:
 
 ### Read (built-in)
 - **Description**: Read a file from disk. Returns its contents, optionally sliced by line offset/limit. Use this to load SKILL.md bodies on demand.
@@ -79,6 +86,12 @@ This agent exposes 6 function-call tools:
 ### validate
 - **Description**: Validate input against common patterns
 - **Tags**: mock, testing, validation
+- **Input Schema**: Defined in agent configuration
+- **Output Schema**: Defined in agent configuration
+
+### simulate_tool_call
+- **Description**: Simulate a single tool call for load, latency and failure testing. Emits an instrumented span (gen_ai.tool.name) with a configurable duration and optional error status. The mock LLM drives this once per entry of a multi-tool-call workload.
+- **Tags**: mock, testing, performance, tracing
 - **Input Schema**: Defined in agent configuration
 - **Output Schema**: Defined in agent configuration
 
@@ -182,6 +195,7 @@ docker run -p 8080:8080 mock-agent
 │   └── error.go                  # Simulate error conditions for testing error handling
 │   └── random_data.go            # Generate random test data
 │   └── validate.go               # Validate input against common patterns
+│   └── simulate_tool_call.go     # Simulate a single tool call for load, latency and failure testing. Emits an instrumented span (gen_ai.tool.name) with a configurable duration and optional error status. The mock LLM drives this once per entry of a multi-tool-call workload.
 ├── skills/                       # Skill directories (SKILL.md + optional assets)
 │   └── connectivity-check/       # Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded.
 │       └── SKILL.md              # Playbook prepended to the system prompt

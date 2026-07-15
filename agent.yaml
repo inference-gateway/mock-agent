@@ -290,3 +290,6 @@ spec:
       - title: Usage
         path: docs/usage.md
         description: Drive the mock tools and skills over A2A, including the deterministic keyword routing.
+      - title: Simulating Tool Calls
+        path: docs/simulating-tool-calls.md
+        description: Drive configurable multi-tool-call workloads - counts, per-call latency, and failure injection - via prompt keywords or the MOCK_TOOL_CALLS env.

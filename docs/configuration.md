@@ -33,6 +33,20 @@ and exposed as environment overrides:
 | `TOOLS_READ_ENABLED` | Enable the Read tool | `true` |
 | `TOOLS_READ_MAX_LINES` | Max lines returned per read | `2000` |
 
+## Multi-tool-call simulation
+
+Make every task drive a configurable sequence of instrumented tool spans (for
+load, latency, and failure testing) with these env vars:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MOCK_TOOL_CALLS` | Comma list of `name[:duration_ms][!]` calls to simulate per task | (unset) |
+| `MOCK_TOOL_CALL_DURATION_MS` | Per-call latency when an entry omits `:duration_ms` | `100` |
+
+These are read directly from the environment by the mock LLM client rather than
+generated from `agent.yaml`. See [Simulating Tool Calls](simulating-tool-calls.md)
+for the prompt-keyword equivalent and full details.
+
 ## Telemetry
 
 Telemetry is declared in `spec.telemetry` but ships **off by default** in the
