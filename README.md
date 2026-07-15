@@ -97,16 +97,6 @@ them at runtime.
 
 | Category | Variable | Default |
 |----------|----------|---------|
-| **Telemetry** | `TELEMETRY_ENABLE` | `false` |
-| **Telemetry** | `TELEMETRY_LOG_ENABLE` | `false` |
-| **Telemetry** | `TELEMETRY_LOG_ENDPOINT` | `http://localhost:4318` |
-| **Telemetry** | `TELEMETRY_METRICS_HOST` | `` |
-| **Telemetry** | `TELEMETRY_METRICS_IDLE_TIMEOUT` | `60s` |
-| **Telemetry** | `TELEMETRY_METRICS_PORT` | `9090` |
-| **Telemetry** | `TELEMETRY_METRICS_READ_TIMEOUT` | `30s` |
-| **Telemetry** | `TELEMETRY_METRICS_WRITE_TIMEOUT` | `30s` |
-| **Telemetry** | `TELEMETRY_TRACE_ENABLE` | `false` |
-| **Telemetry** | `TELEMETRY_TRACE_ENDPOINT` | `http://localhost:4318` |
 | **Tools** | `TOOLS_READ_ENABLED` | `true` |
 | **Tools** | `TOOLS_READ_MAX_LINES` | `2000` |
 
@@ -157,6 +147,12 @@ them at runtime.
 | **Artifacts** | `A2A_ARTIFACTS_RETENTION_MAX_AGE` | Max artifact age (0 = no age limit) | `168h` |
 | **Artifacts** | `A2A_ARTIFACTS_RETENTION_CLEANUP_INTERVAL` | Cleanup frequency (0 = manual only) | `24h` |
 | **Authentication** | `A2A_AUTH_ENABLE` | Enable OIDC authentication | `false` |
+| **Telemetry** | `A2A_TELEMETRY_ENABLE` | Enable OpenTelemetry instrumentation | `true` |
+| **Telemetry** | `A2A_OTEL_TRACES_EXPORTER` | Trace exporter (`otlp` or `none`) | `otlp` |
+| **Telemetry** | `A2A_OTEL_METRICS_EXPORTER` | Metrics exporter (`otlp`, `prometheus`, or `none`) | `prometheus` |
+| **Telemetry** | `A2A_OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP collector endpoint | `http://localhost:4318` |
+| **Telemetry** | `A2A_OTEL_EXPORTER_OTLP_PROTOCOL` | OTLP protocol (`grpc` or `http/protobuf`) | `http/protobuf` |
+| **Telemetry** | `A2A_OTEL_EXPORTER_PROMETHEUS_PORT` | Prometheus metrics exporter port | `9090` |
 
 ## Development
 
