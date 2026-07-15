@@ -81,6 +81,7 @@ The following tools are currently defined:
 - **error**: Simulate error conditions for testing error handling
 - **random_data**: Generate random test data
 - **validate**: Validate input against common patterns
+- **simulate_tool_call**: Simulate a single tool call for load, latency and failure testing. Emits an instrumented span (gen_ai.tool.name) with a configurable duration and optional error status. The mock LLM drives this once per entry of a multi-tool-call workload.
 
 To modify tools:
 1. Update `agent.yaml` `spec.tools` with tool definitions

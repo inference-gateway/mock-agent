@@ -76,6 +76,7 @@ infer agents add mock-agent http://localhost:8080 \
 | `error` | Simulate error conditions for testing error handling | error_type, message |
 | `random_data` | Generate random test data | count, data_type |
 | `validate` | Validate input against common patterns | input, validation_type |
+| `simulate_tool_call` | Simulate a single tool call for load, latency and failure testing. Emits an instrumented span (gen_ai.tool.name) with a configurable duration and optional error status. The mock LLM drives this once per entry of a multi-tool-call workload. | duration_ms, fail, name |
 
 ## Examples
 
@@ -98,6 +99,7 @@ infer agents add mock-agent http://localhost:8080 \
 - [Getting Started](docs/getting-started.md)
 - [Configuration](docs/configuration.md)
 - [Usage](docs/usage.md)
+- [Simulating Tool Calls](docs/simulating-tool-calls.md)
 
 ## Configuration
 

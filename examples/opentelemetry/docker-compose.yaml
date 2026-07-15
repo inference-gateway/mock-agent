@@ -37,6 +37,11 @@ services:
       A2A_TELEMETRY_METRICS_PORT: "9090"
       A2A_TELEMETRY_TRACE_ENABLE: "true"
       A2A_TELEMETRY_TRACE_ENDPOINT: "http://otel-collector:4318"
+      # --- Multi-tool-call workload: uncomment to make EVERY task emit a
+      # sequence of instrumented tool spans (name[:duration_ms][!], "!" = failed
+      # span). Or trigger per-request with a "simulate N tool calls" prompt. ---
+      # MOCK_TOOL_CALLS: "read,search:300!,write:250"
+      # MOCK_TOOL_CALL_DURATION_MS: "100"
     depends_on:
       otel-collector:
         condition: service_started

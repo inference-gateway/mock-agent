@@ -231,6 +231,11 @@ func runStart(ctx context.Context) error {
 	toolBox.AddTool(validateTool)
 	l.Info("registered tool: validate (Validate input against common patterns)")
 
+	// Register simulate_tool_call tool
+	simulateTool := tools.NewSimulateToolCallTool()
+	toolBox.AddTool(simulateTool)
+	l.Info("registered tool: simulate_tool_call (Simulate a configurable tool call with latency and optional failure for multi-tool-call workloads)")
+
 	llmClient := mock.NewMockLLMClient(l)
 	l.Info("using mock LLM client (no external API calls)")
 
@@ -245,10 +250,17 @@ You have access to several mock tools that demonstrate different testing scenari
 - Read: Read a file from disk - the mock routes here when a request mentions
   "read <path>", exercising a real tool call (and its telemetry span) so
   distributed traces show a nested sub-tool span under a2a.request
+- simulate_tool_call: Simulate one tool call with a configurable name, latency
+  and optional error status. The mock drives it repeatedly to build multi
+  tool-call workloads for load, latency and failure testing.
 
 The mock routes on deterministic keywords, not model reasoning. Notably,
 "read <path>" runs the Read tool against <path> (defaulting to README.md),
-which is handy for end-to-end distributed-tracing demos.
+which is handy for end-to-end distributed-tracing demos. Saying
+"simulate N tool calls" (or setting MOCK_TOOL_CALLS=read,search,read) drives a
+sequence of instrumented simulate_tool_call spans - each with its own
+gen_ai.tool.name, duration and optional injected failure - so a task can look
+like a realistic multi-step agent in a trace.
 
 When responding:
 - Be clear and predictable in your responses

@@ -57,3 +57,12 @@ docker run --rm -it --network host ghcr.io/inference-gateway/a2a-debugger:latest
 > See [`examples/opentelemetry`](../examples/opentelemetry/README.md) for the
 > full tracing stack, including the `infer` -> `a2a.request` -> `tool.read`
 > distributed trace.
+
+## Keyword routing: `simulate N tool calls`
+
+Sending **`simulate N tool calls`** drives the `simulate_tool_call` tool a
+configurable number of times, so a single task emits several nested tool spans
+(with varied durations and the occasional injected failure) and looks like a
+realistic multi-step agent in a trace. See
+[Simulating Tool Calls](simulating-tool-calls.md) for the full set of prompt
+keywords and the `MOCK_TOOL_CALLS` env default.

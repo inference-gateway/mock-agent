@@ -102,6 +102,41 @@ In Jaeger the `mock-agent` trace now shows a `tool.read` span nested under
 > "error"/"failed" — the mock treats a tool result containing them as a
 > simulated failure (the span is still emitted, but the task is marked failed).
 
+## Multi-tool-call workloads (`a2a.request` → N tool spans)
+
+A single `tool.read` span is a good smoke test, but real agents fan out into
+several tool calls of varying duration, some of which fail. The mock can
+simulate exactly that: drive the `simulate_tool_call` tool N times and the trace
+shows `a2a.request` → `tool.read` → `tool.search` → … , each span carrying its
+own `gen_ai.tool.name`, duration, and (when injected) an **error status** — with
+`tool_calls` / `iterations` in the task metadata reflecting the real count.
+
+Trigger it with a prompt:
+
+```bash
+# 4 calls, varied durations, the last one marked failed
+docker compose -f examples/opentelemetry/docker-compose.yaml --profile debugger \
+  run --rm debugger --server-url http://mock-agent:8080 \
+  tasks submit "simulate 4 tool calls with a failure"
+```
+
+…or make it the default for **every** task via `MOCK_TOOL_CALLS` (already wired
+into the `mock-agent` service env in this compose file — uncomment it there, or
+export it before `up`). Each entry is `name[:duration_ms][!]`:
+
+```bash
+# read (100ms) → search (300ms, failed span) → write (250ms)
+MOCK_TOOL_CALLS=read,search:300!,write:250 \
+  docker compose -f examples/opentelemetry/docker-compose.yaml up --build
+```
+
+In Jaeger the `mock-agent` trace now shows several nested `tool.*` spans under a
+single `a2a.request`, with the injected failure rendered as an errored span —
+the multi-tool-call shape [cli#909](https://github.com/inference-gateway/cli/pull/909)
+wants to visualize. Injected failures are **non-fatal** (the workload runs to
+completion so the whole trace is produced); for a task that actually fails, send
+an `error-injection` prompt instead.
+
 ## Full CLI e2e (cli#909)
 
 To see the CLI's own spans stitched together with the agent's, use the `cli`
