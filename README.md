@@ -77,6 +77,15 @@ infer agents add mock-agent http://localhost:8080 \
 | `random_data` | Generate random test data | count, data_type |
 | `validate` | Validate input against common patterns | input, validation_type |
 
+## Examples
+
+| Example | Description |
+|---------|-------------|
+| Connectivity smoke test | Send a known payload through the echo tool (the connectivity-check skill) and confirm the round-trip, verifying the agent is reachable and responding over A2A. |
+| Error-handling drill | Drive the error tool across every error_type - validation, timeout, internal, not_found - via the error-injection skill to see how your client reacts to each failure mode. |
+| Latency and load simulation | Combine the delay tool with random_data (the load-simulation skill) to return realistic test payloads after a configurable delay, exercising client timeouts and streaming under slow responses. |
+| Distributed-tracing demo with nested tool spans | Send "read <path>" to route through the Read built-in and emit a tool.read span nested under a2a.request, producing real per-tool sub-spans for end-to-end OpenTelemetry tracing (see examples/opentelemetry). |
+
 ## Skills (loaded into the system prompt)
 
 | Skill | Description | Source |
@@ -84,6 +93,11 @@ infer agents add mock-agent http://localhost:8080 \
 | `connectivity-check` | Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded. | bare scaffold (`skills/connectivity-check.md`) |
 | `error-injection` | Use this when the user wants to test how their client handles different failure modes. Invokes the error tool across the supported error_type values (validation, timeout, internal, not_found) so the caller can observe each error path. | bare scaffold (`skills/error-injection.md`) |
 | `load-simulation` | Use this when the user wants to test client behavior under slow responses with realistic payloads. Combines the delay tool (to introduce latency) with the random_data tool (to produce a test payload of the requested shape). | bare scaffold (`skills/load-simulation.md`) |
+
+## Documentation
+- [Getting Started](docs/getting-started.md)
+- [Configuration](docs/configuration.md)
+- [Usage](docs/usage.md)
 
 ## Configuration
 
