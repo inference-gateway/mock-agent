@@ -179,7 +179,6 @@ func runStart(ctx context.Context) error {
 	} else if cfg.A2A.TelemetryConfig.Enable {
 		l.Info("OpenTelemetry enabled",
 			zap.String("metrics_port", cfg.A2A.TelemetryConfig.MetricsConfig.Port),
-			zap.Bool("traces_enabled", cfg.A2A.TelemetryConfig.TraceConfig.Enable),
 		)
 	} else {
 		l.Debug("OpenTelemetry disabled (set A2A_TELEMETRY_ENABLE=true to enable)")
