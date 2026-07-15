@@ -68,6 +68,13 @@ jobs:
           version: 3.48.0
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install ADL CLI
+        env:
+          VERSION: v0.48.0
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/inference-gateway/adl-cli/v0.48.0/install.sh | bash
+          adl --version
+
       - name: Install ADL skill
         run: |
           mkdir -p ~/.claude/skills/adl
@@ -116,6 +123,6 @@ jobs:
           claude_args: |
             --effort max
             --model claude-opus-4-8
-            --allowedTools "Bash(task:*),Bash(gh:*),Bash(git:*),Bash(go:*)"
+            --allowedTools "Bash(task:*),Bash(gh:*),Bash(git:*),Bash(adl:*),Bash(go:*)"
           prompt: ${{ steps.set-prompt.outputs.value }}
           track_progress: ${{ github.event_name != 'workflow_dispatch' }}
