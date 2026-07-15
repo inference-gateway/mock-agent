@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1](https://github.com/inference-gateway/mock-agent/compare/v0.3.0...v0.3.1) (2026-07-15)
+
+### 👷 CI
+
+* **deps:** bump inference-gateway/infer-action ([#79](https://github.com/inference-gateway/mock-agent/issues/79)) ([15f791a](https://github.com/inference-gateway/mock-agent/commit/15f791a6e9ad516ac728c3ad7611f7558331427f))
+
+### 🔧 Miscellaneous
+
+* **adl:** refresh agent.yaml defaults from ADL CLI v0.50.2 ([#77](https://github.com/inference-gateway/mock-agent/issues/77)) ([f2920a8](https://github.com/inference-gateway/mock-agent/commit/f2920a8b7484d58ad770057068fc3157a656ae7f))
+* **deps:** bump ADL CLI to v0.50.2 ([#78](https://github.com/inference-gateway/mock-agent/issues/78)) ([0c4cfe2](https://github.com/inference-gateway/mock-agent/commit/0c4cfe2b9ef08245a00602fd5f7eeb76eca7e1b9))
+* **deps:** bump ADL CLI v0.50.2 -> v0.51.0 ([#80](https://github.com/inference-gateway/mock-agent/issues/80)) ([6eb1eef](https://github.com/inference-gateway/mock-agent/commit/6eb1eefbfbe4d042ab8532f6104f71c2bdf8e81f))
+
 ## [0.3.0](https://github.com/inference-gateway/mock-agent/compare/v0.2.1...v0.3.0) (2026-07-15)
 
 ### ✨ Features
