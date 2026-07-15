@@ -3,7 +3,9 @@ apiVersion: adl.inference-gateway.com/v1
 kind: Agent
 metadata:
   name: mock-agent
-  description: A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!
+  description:
+    A2A agent server for mocking and testing. Uses a mock LLM client - no API
+    keys required!
   version: 0.3.0
 spec:
   capabilities:
@@ -67,7 +69,8 @@ spec:
     - id: read
     - id: echo
       name: echo
-      description: Echo back the input message (useful for basic connectivity tests)
+      description:
+        Echo back the input message (useful for basic connectivity tests)
       tags:
         - mock
         - testing
@@ -170,7 +173,11 @@ spec:
           - validation_type
     - id: simulate_tool_call
       name: simulate_tool_call
-      description: Simulate a single tool call for load, latency and failure testing. Emits an instrumented span (gen_ai.tool.name) with a configurable duration and optional error status. The mock LLM drives this once per entry of a multi-tool-call workload.
+      description:
+        Simulate a single tool call for load, latency and failure testing. Emits
+        an instrumented span (gen_ai.tool.name) with a configurable duration and
+        optional error status. The mock LLM drives this once per entry of a
+        multi-tool-call workload.
       tags:
         - mock
         - testing
@@ -181,18 +188,27 @@ spec:
         properties:
           name:
             type: string
-            description: Tool name reported as gen_ai.tool.name and the span suffix (tool.<name>), e.g. read or search.
+            description:
+              Tool name reported as gen_ai.tool.name and the span suffix
+              (tool.<name>), e.g. read or search.
           duration_ms:
             type: number
-            description: Simulated latency in milliseconds (default 100, capped at 60000).
+            description:
+              Simulated latency in milliseconds (default 100, capped at 60000).
           fail:
             type: boolean
-            description: "When true, mark the emitted span with error status. This is non-fatal: the surrounding workload continues so the full trace is produced."
+            description:
+              "When true, mark the emitted span with error status. This is
+              non-fatal: the surrounding workload continues so the full trace is
+              produced."
   skills:
     - id: connectivity-check
       bare: true
       name: connectivity-check
-      description: "Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded."
+      description:
+        "Use this when the user wants to verify the agent is reachable and
+        responding correctly. Invokes the echo tool with a known payload and
+        confirms the round-trip succeeded."
       tags:
         - mock
         - testing
@@ -200,7 +216,11 @@ spec:
     - id: error-injection
       bare: true
       name: error-injection
-      description: "Use this when the user wants to test how their client handles different failure modes. Invokes the error tool across the supported error_type values (validation, timeout, internal, not_found) so the caller can observe each error path."
+      description:
+        "Use this when the user wants to test how their client handles different
+        failure modes. Invokes the error tool across the supported error_type
+        values (validation, timeout, internal, not_found) so the caller can
+        observe each error path."
       tags:
         - mock
         - testing
@@ -208,7 +228,11 @@ spec:
     - id: load-simulation
       bare: true
       name: load-simulation
-      description: "Use this when the user wants to test client behavior under slow responses with realistic payloads. Combines the delay tool (to introduce latency) with the random_data tool (to produce a test payload of the requested shape)."
+      description:
+        "Use this when the user wants to test client behavior under slow
+        responses with realistic payloads. Combines the delay tool (to introduce
+        latency) with the random_data tool (to produce a test payload of the
+        requested shape)."
       tags:
         - mock
         - testing
@@ -236,6 +260,8 @@ spec:
     dependabot: true
     ci: true
     cd: true
+    app_id_secret: RELEASER_APP_ID
+    app_private_key_secret: RELEASER_APP_PRIVATE_KEY
   development:
     sandbox:
       flox:
@@ -248,6 +274,8 @@ spec:
       orchestrators:
         claudecode:
           enabled: true
+          appIdSecret: CLAUDE_APP_ID
+          appPrivateKeySecret: CLAUDE_APP_PRIVATE_KEY
         codex:
           enabled: false
         gemini:
@@ -256,6 +284,8 @@ spec:
           enabled: false
         infer:
           enabled: true
+          appIdSecret: INFER_APP_ID
+          appPrivateKeySecret: INFER_APP_PRIVATE_KEY
     deps: []
   examples:
     - title: Connectivity smoke test
@@ -283,13 +313,21 @@ spec:
     pages:
       - title: Getting Started
         path: docs/getting-started.md
-        description: Install, build, and run the mock agent locally or with Docker.
+        description:
+          Install, build, and run the mock agent locally or with Docker.
       - title: Configuration
         path: docs/configuration.md
-        description: Environment variables and agent.yaml settings that control the mock agent.
+        description:
+          Environment variables and agent.yaml settings that control the mock
+          agent.
       - title: Usage
         path: docs/usage.md
-        description: Drive the mock tools and skills over A2A, including the deterministic keyword routing.
+        description:
+          Drive the mock tools and skills over A2A, including the deterministic
+          keyword routing.
       - title: Simulating Tool Calls
         path: docs/simulating-tool-calls.md
-        description: Drive configurable multi-tool-call workloads - counts, per-call latency, and failure injection - via prompt keywords or the MOCK_TOOL_CALLS env.
+        description:
+          Drive configurable multi-tool-call workloads - counts, per-call
+          latency, and failure injection - via prompt keywords or the
+          MOCK_TOOL_CALLS env.

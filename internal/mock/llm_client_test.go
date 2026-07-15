@@ -64,6 +64,7 @@ func argsMap(t *testing.T, call *sdk.ChatCompletionMessageToolCall) map[string]a
 	t.Helper()
 	if call == nil {
 		t.Fatalf("expected tool call, got nil")
+		return nil
 	}
 	var m map[string]any
 	if err := json.Unmarshal([]byte(call.Function.Arguments), &m); err != nil {
@@ -91,6 +92,7 @@ func TestSkillRouting_ConnectivityCheck_RoutesToEcho(t *testing.T) {
 			call := invoke(t, client, userMsg(msg))
 			if call == nil {
 				t.Fatalf("expected echo tool call, got nil")
+				return
 			}
 			if call.Function.Name != "echo" {
 				t.Fatalf("expected echo, got %s (args=%s)", call.Function.Name, call.Function.Arguments)
