@@ -36,6 +36,13 @@ spec:
       - error: Simulate error conditions for testing error handling
       - random_data: Generate random test data
       - validate: Validate input against common patterns
+      - Read: Read a file from disk - the mock routes here when a request mentions
+        "read <path>", exercising a real tool call (and its telemetry span) so
+        distributed traces show a nested sub-tool span under a2a.request
+
+      The mock routes on deterministic keywords, not model reasoning. Notably,
+      "read <path>" runs the Read tool against <path> (defaulting to README.md),
+      which is handy for end-to-end distributed-tracing demos.
 
       When responding:
       - Be clear and predictable in your responses
