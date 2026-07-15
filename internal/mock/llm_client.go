@@ -176,10 +176,6 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 			if msg.Role == sdk.Tool {
 				hasToolResults = true
 				msgText := contentToString(msg.Content)
-				// A simulated tool result may carry an injected failure; it is
-				// tagged so we don't mistake it for a genuine tool error and
-				// abort the workload mid-way (the span already records the
-				// error status).
 				if !isSimulatedToolResult(msgText) && (contains(toLower(msgText), "error") || contains(toLower(msgText), "failed")) {
 					toolError = msgText
 				}
@@ -351,11 +347,6 @@ func (m *MockLLMClient) generateMockToolCalls(tools []sdk.ChatCompletionTool, us
 		return nil
 	}
 
-	// Multi-tool-call simulation: an explicit "simulate N tool calls" prompt or
-	// a MOCK_TOOL_CALLS env default drives a configurable sequence of simulated
-	// calls. This runs before the single-shot guard because a workload
-	// intentionally spans several iterations (one tool call each), advancing as
-	// tool results accumulate - so tool_calls / iterations reflect the plan.
 	if plan := effectiveSimulationPlan(userMessage); plan != nil {
 		completed := countToolResults(messages)
 		if completed >= len(plan) {
@@ -365,16 +356,9 @@ func (m *MockLLMClient) generateMockToolCalls(tools []sdk.ChatCompletionTool, us
 			m.logSimulationStep(plan, completed, userMessage)
 			return []sdk.ChatCompletionMessageToolCall{*call}
 		}
-		// simulate_tool_call is not registered in this toolset - fall through
-		// to a text response rather than looping.
 		return nil
 	}
 
-	// For non-skill messages, preserve legacy single-shot behavior: once any
-	// tool result is in history, don't emit further tool calls - let the
-	// caller produce a text response. Without this, fallback branches below
-	// (artifact/echo/first-tool) keep firing after every result, looping the
-	// agent indefinitely.
 	if countToolResults(messages) > 0 {
 		return nil
 	}
@@ -591,13 +575,10 @@ func simulationPlanFromPrompt(userMessage string) []toolCallSpec {
 
 	plan := make([]toolCallSpec, len(names))
 	for i, name := range names {
-		// Vary durations deterministically so the trace shows a realistic
-		// spread rather than N identical spans.
 		plan[i] = toolCallSpec{name: name, durationMS: base + (i%3)*(base/2)}
 	}
 
 	failIntent := contains(lower, "fail") || contains(lower, "error") || contains(lower, "failure")
-	// Whole-word match: bare contains("all") would fire on "tool calls".
 	failAll := failIntent && (containsWord(lower, "all") || containsWord(lower, "every"))
 	switch {
 	case failAll:
