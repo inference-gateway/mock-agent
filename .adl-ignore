@@ -14,6 +14,7 @@ tools/delay.go
 tools/error.go
 tools/random_data.go
 tools/validate.go
+tools/simulate_tool_call.go
 
 # Skill playbooks are hand-authored; the generator only seeds blank
 # scaffolds. Protect the whole skills/ tree so regen never clobbers

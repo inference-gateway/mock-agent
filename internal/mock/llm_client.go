@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	zap "go.uber.org/zap"
@@ -14,6 +15,8 @@ import (
 
 	server "github.com/inference-gateway/adk/server"
 	sdk "github.com/inference-gateway/sdk"
+
+	tools "github.com/inference-gateway/mock-agent/tools"
 )
 
 type MockLLMClient struct {
@@ -173,7 +176,11 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 			if msg.Role == sdk.Tool {
 				hasToolResults = true
 				msgText := contentToString(msg.Content)
-				if contains(toLower(msgText), "error") || contains(toLower(msgText), "failed") {
+				// A simulated tool result may carry an injected failure; it is
+				// tagged so we don't mistake it for a genuine tool error and
+				// abort the workload mid-way (the span already records the
+				// error status).
+				if !isSimulatedToolResult(msgText) && (contains(toLower(msgText), "error") || contains(toLower(msgText), "failed")) {
 					toolError = msgText
 				}
 			}
@@ -283,6 +290,9 @@ func finalTextResponse(lastContent, userMessage string, hasToolResults bool) str
 		if msg, ok := skillCompletionMessage(userMessage); ok {
 			return msg
 		}
+		if plan := effectiveSimulationPlan(userMessage); plan != nil {
+			return simulationCompletionMessage(plan)
+		}
 		if _, ok := readTriggerPath(userMessage); ok {
 			return "File read complete. The Read tool returned the requested file contents."
 		}
@@ -338,6 +348,25 @@ func (m *MockLLMClient) generateMockToolCalls(tools []sdk.ChatCompletionTool, us
 		if call := buildToolCall(nextTool, userMessage, tools); call != nil {
 			return []sdk.ChatCompletionMessageToolCall{*call}
 		}
+		return nil
+	}
+
+	// Multi-tool-call simulation: an explicit "simulate N tool calls" prompt or
+	// a MOCK_TOOL_CALLS env default drives a configurable sequence of simulated
+	// calls. This runs before the single-shot guard because a workload
+	// intentionally spans several iterations (one tool call each), advancing as
+	// tool results accumulate - so tool_calls / iterations reflect the plan.
+	if plan := effectiveSimulationPlan(userMessage); plan != nil {
+		completed := countToolResults(messages)
+		if completed >= len(plan) {
+			return nil
+		}
+		if call := buildSimulateToolCall(plan[completed], tools); call != nil {
+			m.logSimulationStep(plan, completed, userMessage)
+			return []sdk.ChatCompletionMessageToolCall{*call}
+		}
+		// simulate_tool_call is not registered in this toolset - fall through
+		// to a text response rather than looping.
 		return nil
 	}
 
@@ -471,6 +500,287 @@ func buildArtifactCall(userMessage string, tools []sdk.ChatCompletionTool) *sdk.
 		"filename": name,
 	})
 	return newToolCall("create_artifact", string(args))
+}
+
+// --- multi-tool-call simulation --------------------------------------------
+
+// simulateToolName is the registered name of the simulate tool the mock drives
+// once per entry of a workload plan. It mirrors tools.SimulateToolCallName so
+// the mock's emitted call name and the toolbox registration stay in lockstep.
+const simulateToolName = tools.SimulateToolCallName
+
+// defaultSimDurationMS is the per-call latency used when neither a MOCK_TOOL_CALLS
+// entry nor MOCK_TOOL_CALL_DURATION_MS specifies one.
+const defaultSimDurationMS = 100
+
+// slowSimDurationMS is the base latency used when a prompt asks for a "slow"
+// workload.
+const slowSimDurationMS = 500
+
+// maxPromptSimCalls bounds how many calls a prompt like "simulate 999 tool
+// calls" can request, so a stray number can't balloon the workload. Env-driven
+// plans are not capped here (the agent loop's MaxChatCompletionIterations is
+// the real ceiling).
+const maxPromptSimCalls = 20
+
+// toolCallSpec describes one simulated tool call in a workload plan.
+type toolCallSpec struct {
+	name       string
+	durationMS int
+	fail       bool
+}
+
+// simulateNameCycle supplies varied, realistic tool names when a prompt asks
+// for a count but doesn't name the tools (e.g. "simulate 4 tool calls").
+var simulateNameCycle = []string{"read", "search", "fetch", "write", "summarize"}
+
+// effectiveSimulationPlan resolves the multi-tool-call workload for a task, or
+// nil when none applies. An explicit "simulate N tool calls" prompt wins; then
+// the MOCK_TOOL_CALLS env default, which is suppressed for explicit "read
+// <path>" requests so the real Read demo still works with a global default set.
+func effectiveSimulationPlan(userMessage string) []toolCallSpec {
+	if plan := simulationPlanFromPrompt(userMessage); plan != nil {
+		return plan
+	}
+	env := simulationPlanFromEnv()
+	if env == nil {
+		return nil
+	}
+	if _, isRead := readTriggerPath(userMessage); isRead {
+		return nil
+	}
+	return env
+}
+
+// simulationPlanFromPrompt builds a plan when the user explicitly asks the mock
+// to "simulate N tool calls" (or "... workload"), or nil otherwise. Knobs:
+//   - count: the first integer in the message (default 3, clamped 1..20);
+//   - names: an explicit comma list after a colon ("...calls: read, search")
+//     overrides the count and the default name cycle;
+//   - latency: "slow"/"latency" raises the base per-call duration;
+//   - failures: "fail"/"error"/"failure" fails the last call, or every call
+//     when combined with "all"/"every".
+func simulationPlanFromPrompt(userMessage string) []toolCallSpec {
+	lower := toLower(userMessage)
+	if !contains(lower, "simulate") {
+		return nil
+	}
+	if !contains(lower, "tool call") && !contains(lower, "workload") {
+		return nil
+	}
+
+	names := explicitToolNames(userMessage)
+	if len(names) == 0 {
+		n := firstInt(userMessage, 3)
+		if n < 1 {
+			n = 1
+		}
+		if n > maxPromptSimCalls {
+			n = maxPromptSimCalls
+		}
+		names = make([]string, n)
+		for i := 0; i < n; i++ {
+			names[i] = simulateNameCycle[i%len(simulateNameCycle)]
+		}
+	}
+
+	base := defaultSimDurationMS
+	if contains(lower, "slow") || contains(lower, "latency") {
+		base = slowSimDurationMS
+	}
+
+	plan := make([]toolCallSpec, len(names))
+	for i, name := range names {
+		// Vary durations deterministically so the trace shows a realistic
+		// spread rather than N identical spans.
+		plan[i] = toolCallSpec{name: name, durationMS: base + (i%3)*(base/2)}
+	}
+
+	failIntent := contains(lower, "fail") || contains(lower, "error") || contains(lower, "failure")
+	// Whole-word match: bare contains("all") would fire on "tool calls".
+	failAll := failIntent && (containsWord(lower, "all") || containsWord(lower, "every"))
+	switch {
+	case failAll:
+		for i := range plan {
+			plan[i].fail = true
+		}
+	case failIntent && len(plan) > 0:
+		plan[len(plan)-1].fail = true
+	}
+	return plan
+}
+
+// explicitToolNames returns the comma-separated tool names after the first
+// colon in the message ("simulate tool calls: read, search, write"), or nil
+// when there is no such list or any entry isn't a bare tool-name token.
+func explicitToolNames(userMessage string) []string {
+	i := strings.Index(userMessage, ":")
+	if i < 0 {
+		return nil
+	}
+	var names []string
+	for _, part := range strings.Split(userMessage[i+1:], ",") {
+		name := strings.TrimSpace(part)
+		if !isSimpleToolName(name) {
+			return nil
+		}
+		names = append(names, name)
+	}
+	return names
+}
+
+// isSimpleToolName reports whether s is a single bare tool-name token
+// (letters, digits, '_', '-', '.'), so free-form prose after a colon isn't
+// mistaken for a tool list.
+func isSimpleToolName(s string) bool {
+	if s == "" || len(s) > 40 {
+		return false
+	}
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case c >= 'a' && c <= 'z', c >= 'A' && c <= 'Z', c >= '0' && c <= '9':
+		case c == '_' || c == '-' || c == '.':
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+// simulationPlanFromEnv parses the MOCK_TOOL_CALLS env var into a plan, or nil
+// when it is unset/empty. Each comma-separated entry is name[:duration_ms][!]:
+// a bare name uses the default duration; ":150" sets the per-call latency in
+// milliseconds; a trailing "!" injects a failure on that call. Example:
+// MOCK_TOOL_CALLS=read,search:300!,read
+func simulationPlanFromEnv() []toolCallSpec {
+	raw := strings.TrimSpace(os.Getenv("MOCK_TOOL_CALLS"))
+	if raw == "" {
+		return nil
+	}
+	base := envDefaultDurationMS()
+	var plan []toolCallSpec
+	for _, part := range strings.Split(raw, ",") {
+		if spec, ok := parseToolCallSpec(part, base); ok {
+			plan = append(plan, spec)
+		}
+	}
+	if len(plan) == 0 {
+		return nil
+	}
+	return plan
+}
+
+// envDefaultDurationMS reads MOCK_TOOL_CALL_DURATION_MS, falling back to
+// defaultSimDurationMS when unset or invalid.
+func envDefaultDurationMS() int {
+	v := strings.TrimSpace(os.Getenv("MOCK_TOOL_CALL_DURATION_MS"))
+	if v == "" {
+		return defaultSimDurationMS
+	}
+	if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+		return n
+	}
+	return defaultSimDurationMS
+}
+
+// parseToolCallSpec parses one MOCK_TOOL_CALLS entry of the form
+// name[:duration_ms][!]. Returns ok=false for an empty name.
+func parseToolCallSpec(entry string, defaultDuration int) (toolCallSpec, bool) {
+	entry = strings.TrimSpace(entry)
+	fail := false
+	if strings.HasSuffix(entry, "!") {
+		fail = true
+		entry = strings.TrimSpace(strings.TrimSuffix(entry, "!"))
+	}
+	name := entry
+	duration := defaultDuration
+	if i := strings.LastIndex(entry, ":"); i >= 0 {
+		name = strings.TrimSpace(entry[:i])
+		if d, err := strconv.Atoi(strings.TrimSpace(entry[i+1:])); err == nil && d >= 0 {
+			duration = d
+		}
+	}
+	if name == "" {
+		return toolCallSpec{}, false
+	}
+	return toolCallSpec{name: name, durationMS: duration, fail: fail}, true
+}
+
+// buildSimulateToolCall constructs a call to the simulate tool for spec, or nil
+// when the simulate tool is not registered in the supplied toolset.
+func buildSimulateToolCall(spec toolCallSpec, tools []sdk.ChatCompletionTool) *sdk.ChatCompletionMessageToolCall {
+	if !hasToolNamed(tools, simulateToolName) {
+		return nil
+	}
+	args, _ := json.Marshal(map[string]any{
+		"name":        spec.name,
+		"duration_ms": spec.durationMS,
+		"fail":        spec.fail,
+	})
+	return newToolCall(simulateToolName, string(args))
+}
+
+// simulationCompletionMessage summarizes a finished workload for the final
+// assistant text.
+func simulationCompletionMessage(plan []toolCallSpec) string {
+	names := make([]string, len(plan))
+	failures := 0
+	for i, s := range plan {
+		names[i] = s.name
+		if s.fail {
+			failures++
+		}
+	}
+	return fmt.Sprintf("Simulated %d tool call(s): %s. Injected failures: %d.",
+		len(plan), strings.Join(names, ", "), failures)
+}
+
+// isSimulatedToolResult reports whether a tool result came from the simulate
+// tool (tagged with "mock_simulated":true). Used to keep an injected failure
+// from being treated as a fatal tool error.
+func isSimulatedToolResult(msgText string) bool {
+	return contains(msgText, `"mock_simulated":true`) || contains(msgText, `"mock_simulated": true`)
+}
+
+// firstInt returns the first run of decimal digits in s as an int, or def when
+// there is none.
+func firstInt(s string, def int) int {
+	start := -1
+	for i := 0; i < len(s); i++ {
+		if s[i] >= '0' && s[i] <= '9' {
+			if start < 0 {
+				start = i
+			}
+			continue
+		}
+		if start >= 0 {
+			if n, err := strconv.Atoi(s[start:i]); err == nil {
+				return n
+			}
+			start = -1
+		}
+	}
+	if start >= 0 {
+		if n, err := strconv.Atoi(s[start:]); err == nil {
+			return n
+		}
+	}
+	return def
+}
+
+// logSimulationStep records each simulated call the mock drives - handy when
+// confirming a workload produced the expected span sequence in a trace.
+func (m *MockLLMClient) logSimulationStep(plan []toolCallSpec, idx int, userMessage string) {
+	spec := plan[idx]
+	m.logger.Info("mock LLM simulating tool call",
+		zap.String("tool", spec.name),
+		zap.Int("step", idx+1),
+		zap.Int("total_steps", len(plan)),
+		zap.Int("duration_ms", spec.durationMS),
+		zap.Bool("inject_failure", spec.fail),
+		zap.String("user_message", userMessage),
+	)
 }
 
 // readToolName is the registered name of the built-in Read tool (see
@@ -724,6 +1034,32 @@ func extractFrontmatter(content []byte) ([]byte, bool) {
 
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || findSubstring(s, substr))
+}
+
+// containsWord reports whether word appears in s bounded by non-word bytes on
+// both sides, so "all" matches in "all fail" but not inside "tool calls".
+func containsWord(s, word string) bool {
+	if word == "" {
+		return false
+	}
+	for idx := 0; idx+len(word) <= len(s); idx++ {
+		if s[idx:idx+len(word)] != word {
+			continue
+		}
+		beforeOK := idx == 0 || !isWordByte(s[idx-1])
+		afterOK := idx+len(word) == len(s) || !isWordByte(s[idx+len(word)])
+		if beforeOK && afterOK {
+			return true
+		}
+	}
+	return false
+}
+
+func isWordByte(b byte) bool {
+	return b == '_' ||
+		(b >= 'a' && b <= 'z') ||
+		(b >= 'A' && b <= 'Z') ||
+		(b >= '0' && b <= '9')
 }
 
 func findSubstring(s, substr string) bool {

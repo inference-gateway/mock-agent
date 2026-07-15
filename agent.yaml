@@ -39,10 +39,17 @@ spec:
       - Read: Read a file from disk - the mock routes here when a request mentions
         "read <path>", exercising a real tool call (and its telemetry span) so
         distributed traces show a nested sub-tool span under a2a.request
+      - simulate_tool_call: Simulate one tool call with a configurable name, latency
+        and optional error status. The mock drives it repeatedly to build multi
+        tool-call workloads for load, latency and failure testing.
 
       The mock routes on deterministic keywords, not model reasoning. Notably,
       "read <path>" runs the Read tool against <path> (defaulting to README.md),
-      which is handy for end-to-end distributed-tracing demos.
+      which is handy for end-to-end distributed-tracing demos. Saying
+      "simulate N tool calls" (or setting MOCK_TOOL_CALLS=read,search,read) drives a
+      sequence of instrumented simulate_tool_call spans - each with its own
+      gen_ai.tool.name, duration and optional injected failure - so a task can look
+      like a realistic multi-step agent in a trace.
 
       When responding:
       - Be clear and predictable in your responses
@@ -161,6 +168,26 @@ spec:
         required:
           - input
           - validation_type
+    - id: simulate_tool_call
+      name: simulate_tool_call
+      description: Simulate a single tool call for load, latency and failure testing. Emits an instrumented span (gen_ai.tool.name) with a configurable duration and optional error status. The mock LLM drives this once per entry of a multi-tool-call workload.
+      tags:
+        - mock
+        - testing
+        - performance
+        - tracing
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+            description: Tool name reported as gen_ai.tool.name and the span suffix (tool.<name>), e.g. read or search.
+          duration_ms:
+            type: number
+            description: Simulated latency in milliseconds (default 100, capped at 60000).
+          fail:
+            type: boolean
+            description: "When true, mark the emitted span with error status. This is non-fatal: the surrounding workload continues so the full trace is produced."
   skills:
     - id: connectivity-check
       bare: true
