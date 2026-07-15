@@ -13,7 +13,7 @@ spec:
   artifacts:
     enabled: true
   telemetry:
-    enabled: false
+    enabled: true
     traces:
       exporter:
         otlp:
