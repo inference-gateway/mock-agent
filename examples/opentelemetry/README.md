@@ -15,7 +15,10 @@ with the [infer CLI telemetry feature (cli#909)](https://github.com/inference-ga
 
 Because the CLI propagates W3C trace context to the agent and both export to the
 **same collector**, the agent's `a2a.request` span nests under the CLI's tool
-span in a single distributed trace.
+span in a single distributed trace. Send the mock the agreed **`read <path>`**
+phrase (see the **Nested tool spans** section below) and it emits its own nested
+`tool.read` span under `a2a.request`, so the trace shows real per-tool sub-spans
+just like a live agent.
 
 ## Why this is needed
 
@@ -66,6 +69,38 @@ docker compose -f examples/opentelemetry/docker-compose.yaml logs -f otel-collec
 
 Prometheus metrics are exposed directly by the agent at
 **http://localhost:9090/metrics** (instruments prefixed `a2a.`).
+
+## Nested tool spans (`a2a.request` → `tool.read`)
+
+By default the mock answers with canned text and never runs a tool, so the agent
+contributes only the `a2a.request` middleware span. To make it emit a **real
+sub-tool span**, send the agreed **`read <path>`** phrase — the mock LLM client
+routes it through the generated `Read` built-in, which opens a `tool.read` span
+(`tools/telemetry.go`) parented under the inbound request:
+
+```bash
+# reads go.mod inside the agent container and emits a tool.read span
+docker compose -f examples/opentelemetry/docker-compose.yaml --profile debugger \
+  run --rm debugger --server-url http://mock-agent:8080 tasks submit "read go.mod"
+```
+
+or over plain HTTP:
+
+```bash
+curl -s http://localhost:8080/a2a \
+  -H 'content-type: application/json' \
+  -d '{"jsonrpc":"2.0","id":"1","method":"message/send","params":{"message":{"role":"user","parts":[{"kind":"text","text":"read go.mod"}],"messageId":"m1"}}}'
+```
+
+In Jaeger the `mock-agent` trace now shows a `tool.read` span nested under
+`a2a.request` (same trace ID). With the CLI wired up (below) the full chain is
+`infer` → `a2a.request` → `tool.read` in one distributed trace — the shape
+[cli#909](https://github.com/inference-gateway/cli/pull/909) demonstrates.
+
+> Pass any in-container path, e.g. `read README.md` or `read agent.yaml`; a bare
+> `read` defaults to `README.md`. Avoid files whose contents include the words
+> "error"/"failed" — the mock treats a tool result containing them as a
+> simulated failure (the span is still emitted, but the task is marked failed).
 
 ## Full CLI e2e (cli#909)
 

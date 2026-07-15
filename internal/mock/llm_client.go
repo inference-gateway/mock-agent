@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	zap "go.uber.org/zap"
 	yaml "gopkg.in/yaml.v3"
@@ -282,6 +283,9 @@ func finalTextResponse(lastContent, userMessage string, hasToolResults bool) str
 		if msg, ok := skillCompletionMessage(userMessage); ok {
 			return msg
 		}
+		if _, ok := readTriggerPath(userMessage); ok {
+			return "File read complete. The Read tool returned the requested file contents."
+		}
 	}
 	content := lastContent
 	if hasToolResults && userMessage != "" {
@@ -344,6 +348,18 @@ func (m *MockLLMClient) generateMockToolCalls(tools []sdk.ChatCompletionTool, us
 	// agent indefinitely.
 	if countToolResults(messages) > 0 {
 		return nil
+	}
+
+	// Agreed "read <path>" phrase: route through the real Read built-in so a
+	// genuine tool call - and the telemetry span it emits (tool.read) - is
+	// exercised, giving distributed traces a nested sub-tool span under the
+	// inbound a2a.request. Checked before the generic keyword routes so the
+	// phrase wins even when the path or surrounding words mention another tool.
+	if path, ok := readTriggerPath(userMessage); ok {
+		if call := buildReadToolCall(path, tools); call != nil {
+			m.logReadTrigger(path, userMessage)
+			return []sdk.ChatCompletionMessageToolCall{*call}
+		}
 	}
 
 	if contains(lowerMsg, "error") || contains(lowerMsg, "fail") || contains(lowerMsg, "throw") {
@@ -460,6 +476,109 @@ func buildArtifactCall(userMessage string, tools []sdk.ChatCompletionTool) *sdk.
 		"filename": name,
 	})
 	return newToolCall("create_artifact", string(args))
+}
+
+// readToolName is the registered name of the built-in Read tool (see
+// tools/read.go). Unlike the mock tools it is PascalCase, so route to it by
+// this exact name.
+const readToolName = "Read"
+
+// defaultReadPath is the file the mock reads when the agreed "read" phrase
+// arrives without an explicit path. README.md always exists at the repo root,
+// so the demo always has a real file to open (and a real tool span to emit).
+const defaultReadPath = "README.md"
+
+// readFiller are throwaway words the mock skips when hunting for the path in a
+// "read the file X" style phrase, so the extracted path is X and not "the".
+var readFiller = map[string]bool{
+	"the": true, "a": true, "an": true, "file": true, "files": true,
+	"contents": true, "content": true, "of": true, "please": true,
+	"from": true, "in": true, "at": true, "me": true, "this": true,
+	"that": true, "for": true, "and": true, "its": true, "you": true,
+	"can": true, "could": true, "now": true,
+}
+
+// readTriggerPath implements the mock's agreed "read" phrase: when "read"
+// appears as a standalone token in the user message it returns the file path to
+// hand to the Read tool (and true). Matching a whole token - not a bare
+// substring - keeps words like "already", "thread" and "reading" from firing
+// it. An explicit path-like token (one carrying a separator or extension) wins;
+// otherwise the first non-filler word after the keyword is used, falling back to
+// defaultReadPath when the keyword stands alone. Casing is preserved so the path
+// resolves as typed.
+func readTriggerPath(userMessage string) (string, bool) {
+	tokens := strings.Fields(userMessage)
+	readIdx := -1
+	for i, tok := range tokens {
+		if toLower(trimPathToken(tok)) == "read" {
+			readIdx = i
+			break
+		}
+	}
+	if readIdx < 0 {
+		return "", false
+	}
+
+	rest := tokens[readIdx+1:]
+	for _, tok := range rest {
+		if cand := trimPathToken(tok); looksLikePath(cand) {
+			return cand, true
+		}
+	}
+	for _, tok := range rest {
+		cand := trimPathToken(tok)
+		if cand != "" && !readFiller[toLower(cand)] {
+			return cand, true
+		}
+	}
+	return defaultReadPath, true
+}
+
+// trimPathToken strips surrounding quotes/brackets and trailing sentence
+// punctuation from a token while preserving a leading "./" or "../" and any
+// interior dots, so `"README.md",` -> `README.md` and `./main.go` is untouched.
+func trimPathToken(tok string) string {
+	tok = strings.Trim(tok, "\"'`()[]{}<>")
+	tok = strings.TrimRight(tok, ".,;:!?")
+	return tok
+}
+
+// looksLikePath reports whether a token is confidently a file path: it either
+// carries a path separator or has a non-empty extension (a dot with text on
+// both sides).
+func looksLikePath(s string) bool {
+	if s == "" {
+		return false
+	}
+	if strings.ContainsAny(s, "/\\") {
+		return true
+	}
+	if i := strings.LastIndex(s, "."); i > 0 && i < len(s)-1 {
+		return true
+	}
+	return false
+}
+
+// buildReadToolCall builds a call to the built-in Read tool for path, or nil
+// when the Read tool is not in the supplied toolset (so callers fall through to
+// the other routes).
+func buildReadToolCall(path string, tools []sdk.ChatCompletionTool) *sdk.ChatCompletionMessageToolCall {
+	if !hasToolNamed(tools, readToolName) {
+		return nil
+	}
+	args, _ := json.Marshal(map[string]any{"file_path": path})
+	return newToolCall(readToolName, string(args))
+}
+
+// logReadTrigger records that the mock routed a request through the real Read
+// built-in via the agreed phrase - handy when confirming a tool span was
+// exercised in a trace.
+func (m *MockLLMClient) logReadTrigger(path, userMessage string) {
+	m.logger.Info("mock LLM matched read trigger via pattern",
+		zap.String("tool", readToolName),
+		zap.String("file_path", path),
+		zap.String("user_message", userMessage),
+	)
 }
 
 func extractErrorType(userMessage string) string {

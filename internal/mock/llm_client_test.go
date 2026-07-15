@@ -19,11 +19,11 @@ func newTestClient() (*MockLLMClient, *observer.ObservedLogs) {
 	return &MockLLMClient{logger: zap.New(core)}, recorded
 }
 
-// allMockTools returns the toolset the agent registers at runtime (plus
-// create_artifact from the default toolbox), so each test sees the same
-// candidate set the real agent would see.
+// allMockTools returns the toolset the agent registers at runtime (the Read
+// built-in plus the mock tools, and create_artifact from the default toolbox),
+// so each test sees the same candidate set the real agent would see.
 func allMockTools() []sdk.ChatCompletionTool {
-	names := []string{"echo", "delay", "error", "random_data", "validate", "create_artifact"}
+	names := []string{"echo", "delay", "error", "random_data", "validate", "create_artifact", "Read"}
 	tools := make([]sdk.ChatCompletionTool, 0, len(names))
 	for _, name := range names {
 		tools = append(tools, sdk.ChatCompletionTool{
@@ -449,7 +449,185 @@ func TestSkillCompletion_NoSkillFallback(t *testing.T) {
 	}
 }
 
+// --- Group E: read trigger (agreed phrase -> real Read built-in) ----------
+
+func TestReadTrigger_RoutesToReadTool(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		msg      string
+		wantPath string
+	}{
+		{"read README.md", "README.md"},
+		{"read go.mod", "go.mod"},
+		{"read the file config/config.go", "config/config.go"},
+		{"please read ./main.go", "./main.go"},
+		{"read tools/read.go for me", "tools/read.go"},
+		{"can you read agent.yaml please", "agent.yaml"},
+		{"read", "README.md"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.msg, func(t *testing.T) {
+			t.Parallel()
+			client, logs := newTestClient()
+			call := invoke(t, client, userMsg(tc.msg))
+			if call == nil || call.Function.Name != "Read" {
+				t.Fatalf("expected Read tool call, got %+v", call)
+			}
+			args := argsMap(t, call)
+			if got := args["file_path"]; got != tc.wantPath {
+				t.Fatalf("file_path: want %q, got %v (args=%v)", tc.wantPath, got, args)
+			}
+			assertReadLogged(t, logs, tc.wantPath)
+		})
+	}
+}
+
+// TestReadTrigger_DoesNotFireOnSubstringMatches locks in whole-token matching:
+// words that merely CONTAIN "read" must not route to the Read tool.
+func TestReadTrigger_DoesNotFireOnSubstringMatches(t *testing.T) {
+	t.Parallel()
+	cases := []string{
+		"already done",
+		"summarize the thread",
+		"keep reading the docs",
+	}
+	for _, msg := range cases {
+		t.Run(msg, func(t *testing.T) {
+			t.Parallel()
+			client, _ := newTestClient()
+			call := invoke(t, client, userMsg(msg))
+			if call != nil && call.Function.Name == "Read" {
+				t.Fatalf("did not expect Read tool call for %q, got %+v", msg, call)
+			}
+		})
+	}
+}
+
+// TestReadTrigger_FallsThroughWhenReadToolAbsent verifies the phrase does not
+// hijack routing when the Read built-in is not registered.
+func TestReadTrigger_FallsThroughWhenReadToolAbsent(t *testing.T) {
+	t.Parallel()
+	client, _ := newTestClient()
+	toolsWithoutRead := []sdk.ChatCompletionTool{
+		{Type: sdk.Function, Function: sdk.FunctionObject{Name: "echo"}},
+	}
+	resp, err := client.CreateChatCompletion(context.Background(), userMsg("read go.mod"), toolsWithoutRead...)
+	if err != nil {
+		t.Fatalf("CreateChatCompletion: %v", err)
+	}
+	calls := resp.Choices[0].Message.ToolCalls
+	if calls == nil || len(*calls) == 0 {
+		t.Fatalf("expected a fallback tool call, got none")
+	}
+	if got := (*calls)[0].Function.Name; got == "Read" {
+		t.Fatalf("expected fallback away from Read, got Read")
+	}
+}
+
+func TestReadTrigger_CompletesAfterRead(t *testing.T) {
+	t.Parallel()
+	client, _ := newTestClient()
+	messages := []sdk.Message{
+		{Role: sdk.User, Content: sdk.NewMessageContent("read go.mod")},
+		{Role: sdk.Assistant, Content: sdk.NewMessageContent("")},
+		{Role: sdk.Tool, Content: sdk.NewMessageContent(`{"file_path":"go.mod","lines_read":5,"content":"module example"}`)},
+	}
+	resp, err := client.CreateChatCompletion(context.Background(), messages, allMockTools()...)
+	if err != nil {
+		t.Fatalf("CreateChatCompletion: %v", err)
+	}
+	if calls := resp.Choices[0].Message.ToolCalls; calls != nil && len(*calls) > 0 {
+		t.Fatalf("expected no further tool call after read result, got %+v", *calls)
+	}
+	got := contentToString(resp.Choices[0].Message.Content)
+	if !strings.Contains(got, "File read complete") {
+		t.Fatalf("expected read completion summary, got: %q", got)
+	}
+}
+
+func TestStreaming_ReadTrigger_EmitsReadToolCall(t *testing.T) {
+	t.Parallel()
+	client, _ := newTestClient()
+	respChan, errChan := client.CreateStreamingChatCompletion(context.Background(), userMsg("read go.mod"), allMockTools()...)
+	if got := firstStreamedToolCall(t, respChan, errChan); got != "Read" {
+		t.Fatalf("expected streamed Read tool call, got %q", got)
+	}
+}
+
+// --- readTriggerPath unit tests -------------------------------------------
+
+func TestReadTriggerPath(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		msg      string
+		wantPath string
+		wantOK   bool
+	}{
+		{"read README.md", "README.md", true},
+		{"read the file go.mod", "go.mod", true},
+		{"please read ./cmd/main.go now", "./cmd/main.go", true},
+		{`read "notes.txt"`, "notes.txt", true},
+		{"read README.md.", "README.md", true},
+		{"read", "README.md", true},
+		{"read the file please", "README.md", true}, // no path-like token -> default
+		{"already reading threads", "", false},
+		{"echo hello", "", false},
+		{"", "", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.msg, func(t *testing.T) {
+			t.Parallel()
+			gotPath, gotOK := readTriggerPath(tc.msg)
+			if gotOK != tc.wantOK {
+				t.Fatalf("readTriggerPath(%q) ok: want %v, got %v", tc.msg, tc.wantOK, gotOK)
+			}
+			if gotOK && gotPath != tc.wantPath {
+				t.Fatalf("readTriggerPath(%q) path: want %q, got %q", tc.msg, tc.wantPath, gotPath)
+			}
+		})
+	}
+}
+
 // --- log assertion helper -------------------------------------------------
+
+// firstStreamedToolCall drains a streaming completion and returns the name of
+// the first tool call it observes, or "" if none was streamed.
+func firstStreamedToolCall(t *testing.T, respChan <-chan *sdk.CreateChatCompletionStreamResponse, errChan <-chan error) string {
+	t.Helper()
+	for resp := range respChan {
+		if len(resp.Choices) == 0 {
+			continue
+		}
+		tc := resp.Choices[0].Delta.ToolCalls
+		if tc != nil && len(*tc) > 0 && (*tc)[0].Function != nil {
+			return (*tc)[0].Function.Name
+		}
+	}
+	select {
+	case err := <-errChan:
+		if err != nil {
+			t.Fatalf("stream error: %v", err)
+		}
+	default:
+	}
+	return ""
+}
+
+func assertReadLogged(t *testing.T, logs *observer.ObservedLogs, wantPath string) {
+	t.Helper()
+	entries := logs.FilterMessage("mock LLM matched read trigger via pattern").All()
+	if len(entries) == 0 {
+		t.Fatalf("expected a read-trigger log entry, got none. all logs: %v", logs.All())
+	}
+	for _, e := range entries {
+		for _, f := range e.Context {
+			if f.Key == "file_path" && f.String == wantPath {
+				return
+			}
+		}
+	}
+	t.Fatalf("no read-trigger log carried file_path=%q; entries: %v", wantPath, entries)
+}
 
 func assertSkillLogged(t *testing.T, logs *observer.ObservedLogs, wantSkill string) {
 	t.Helper()
