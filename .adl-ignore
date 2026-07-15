@@ -34,4 +34,3 @@ examples/
 # my-custom-file.go
 # config/secrets.yaml
 
-.github/workflows/infer.yml
