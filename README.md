@@ -97,18 +97,12 @@ them at runtime.
 
 | Category | Variable | Default |
 |----------|----------|---------|
-| **Telemetry** | `TELEMETRY_ENABLE` | `false` |
-| **Telemetry** | `TELEMETRY_LOG_ENABLE` | `false` |
-| **Telemetry** | `TELEMETRY_LOG_ENDPOINT` | `http://localhost:4318` |
-| **Telemetry** | `TELEMETRY_METRICS_HOST` | `` |
-| **Telemetry** | `TELEMETRY_METRICS_IDLE_TIMEOUT` | `60s` |
-| **Telemetry** | `TELEMETRY_METRICS_PORT` | `9090` |
-| **Telemetry** | `TELEMETRY_METRICS_READ_TIMEOUT` | `30s` |
-| **Telemetry** | `TELEMETRY_METRICS_WRITE_TIMEOUT` | `30s` |
-| **Telemetry** | `TELEMETRY_TRACE_ENABLE` | `false` |
-| **Telemetry** | `TELEMETRY_TRACE_ENDPOINT` | `http://localhost:4318` |
 | **Tools** | `TOOLS_READ_ENABLED` | `true` |
 | **Tools** | `TOOLS_READ_MAX_LINES` | `2000` |
+
+> Telemetry is no longer a custom `spec.config` section — it's now the
+> first-class `spec.telemetry` block and is driven at runtime by the ADK's
+> `A2A_TELEMETRY_*` variables. See [Telemetry](#telemetry) below.
 
 ### Environment Variables
 
@@ -157,6 +151,42 @@ them at runtime.
 | **Artifacts** | `A2A_ARTIFACTS_RETENTION_MAX_AGE` | Max artifact age (0 = no age limit) | `168h` |
 | **Artifacts** | `A2A_ARTIFACTS_RETENTION_CLEANUP_INTERVAL` | Cleanup frequency (0 = manual only) | `24h` |
 | **Authentication** | `A2A_AUTH_ENABLE` | Enable OIDC authentication | `false` |
+
+### Telemetry
+
+OpenTelemetry is configured declaratively in `agent.yaml` under the top-level
+`spec.telemetry` block, using the ADL per-signal exporter schema
+([adl#104](https://github.com/inference-gateway/adl/pull/104)) — exporters are
+nested under each signal:
+
+```yaml
+telemetry:
+  enabled: false          # master switch
+  traces:
+    exporter:
+      otlp:
+        endpoint: http://localhost:4318
+        protocol: http/protobuf   # http/protobuf | grpc
+  metrics:
+    exporter:
+      prometheus:         # pull; use `otlp` to push instead
+        host: ""
+        port: 9090
+```
+
+Omit a signal (or its `exporter` block) to disable it. Telemetry ships **off
+by default**; flip it on at runtime with the ADK's `A2A_TELEMETRY_*` variables
+— no regeneration required:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `A2A_TELEMETRY_ENABLE` | `false` | Master switch (Prometheus `/metrics` + tracing) |
+| `A2A_TELEMETRY_METRICS_PORT` | `9090` | Prometheus metrics port |
+| `A2A_TELEMETRY_TRACE_ENABLE` | `false` | Enable OTLP trace export |
+| `A2A_TELEMETRY_TRACE_ENDPOINT` | `http://localhost:4318` | OTLP/HTTP traces endpoint |
+
+See [`examples/opentelemetry`](examples/opentelemetry) for a full Prometheus +
+OTLP collector stack.
 
 ## Development
 

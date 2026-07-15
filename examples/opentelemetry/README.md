@@ -20,7 +20,7 @@ span in a single distributed trace.
 ## Why this is needed
 
 Telemetry ships **off by default** — that default lives in the ADK
-(`A2A_TELEMETRY_ENABLE=false`), and `spec.config.telemetry` in `agent.yaml` maps
+(`A2A_TELEMETRY_ENABLE=false`), and `spec.telemetry` in `agent.yaml` maps
 1:1 onto that built-in config. So you turn it on at runtime with the
 `A2A_TELEMETRY_*` environment variables, which is exactly what the
 `mock-agent` service in this compose file does:
