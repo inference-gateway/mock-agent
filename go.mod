@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/inference-gateway/adk v0.23.1
+	github.com/inference-gateway/adk v0.23.0
 	github.com/inference-gateway/sdk v1.21.0
 	github.com/sethvargo/go-envconfig v1.3.1
 	github.com/spf13/cobra v1.10.2
@@ -24,7 +24,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudevents/sdk-go/v2 v2.16.2 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
-	github.com/coreos/go-oidc/v3 v3.20.0 // indirect
+	github.com/coreos/go-oidc/v3 v3.19.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.12 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
