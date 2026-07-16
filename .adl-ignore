@@ -21,9 +21,17 @@ tools/simulate_tool_call.go
 # the bodies (or any bundled scripts/templates/resources).
 skills/
 
-# Hand-wired to use internal/mock.NewMockLLMClient instead of the
-# generator's default OpenAI-compatible client (mock-agent's whole
-# purpose is to run without real LLM credentials).
+# Hand-maintained but kept in sync with the generated template. main.go
+# carries a SINGLE deviation from `adl generate` output: it wires
+# internal/mock.NewMockLLMClient instead of the generator's default
+# OpenAI-compatible client (mock-agent's whole purpose is to run without
+# real LLM credentials). It is ignored only because the generated template
+# hardcodes server.NewOpenAICompatibleLLMClient with no seam to inject a
+# custom client. When bumping the ADL CLI, regenerate into a scratch dir and
+# re-apply just that one swap (see the header note in main.go). Dropping this
+# entry entirely is blocked on an adl-cli extension point for a custom LLM
+# client (tracked upstream) - until then, keeping it synced by hand is how we
+# pick up template fixes like the OTel service.name propagation.
 main.go
 
 # Hand-authored example stacks (docker-compose, collector configs, docs)
