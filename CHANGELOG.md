@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2](https://github.com/inference-gateway/mock-agent/compare/v0.3.1...v0.3.2) (2026-07-16)
+
+### 🐛 Bug Fixes
+
+* **otel:** sync main.go with ADL v0.51.0 template so OTel service.name is set ([#82](https://github.com/inference-gateway/mock-agent/issues/82)) ([c20ab63](https://github.com/inference-gateway/mock-agent/commit/c20ab6378d14d1c02417646f89ed684eec22c66a)), closes [#81](https://github.com/inference-gateway/mock-agent/issues/81) [#81](https://github.com/inference-gateway/mock-agent/issues/81), references [adl-cli#284](https://github.com/adl-cli/issues/284) [#81](https://github.com/inference-gateway/mock-agent/issues/81)
+
+### 🔧 Miscellaneous
+
+* **flox:** add lockfile ([76bd80a](https://github.com/inference-gateway/mock-agent/commit/76bd80ae3081927a453171febc1649bdcb19be11))
+
 ## [0.3.1](https://github.com/inference-gateway/mock-agent/compare/v0.3.0...v0.3.1) (2026-07-15)
 
 ### 👷 CI
