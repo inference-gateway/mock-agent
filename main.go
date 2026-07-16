@@ -3,20 +3,13 @@
 // Manual changes to this file may be overwritten during regeneration.
 //
 // EXCEPTION: this file is intentionally listed in .adl-ignore and kept in sync
-// with the generated template BY HAND. It carries TWO deliberate deviations
-// from `adl generate` output, each fenced with BEGIN/END comments below:
-//  1. LLM client: the in-repo mock (internal/mock.NewMockLLMClient) instead of
-//     the generator's default OpenAI-compatible client, because mock-agent runs
-//     without real LLM credentials.
-//  2. Telemetry: explicit otel.NewOpenTelemetry + WithTelemetry + ShutDown
-//     wiring. The v0.51.0 template dropped this (A2AServerBuilder.Build() now
-//     initializes telemetry internally), but we keep an explicitly
-//     process-owned telemetry server on purpose - mock-agent exists to exercise
-//     tracing/metrics, so it owns that lifecycle here.
-//
-// Everything else must track the template - when re-syncing after an ADL CLI
-// bump, regenerate into a scratch dir and re-apply only the two fenced
-// deviations below. See the note next to `main.go` in .adl-ignore.
+// with the generated template BY HAND. It carries exactly ONE deviation from
+// `adl generate` output: the LLM client is the in-repo mock
+// (internal/mock.NewMockLLMClient) instead of the generator's default
+// OpenAI-compatible client, because mock-agent runs without real LLM
+// credentials. Everything else must track the template - when re-syncing after
+// an ADL CLI bump, regenerate into a scratch dir and re-apply only the mock
+// client swap marked below. See the note next to `main.go` in .adl-ignore.
 
 package main
 
@@ -33,7 +26,6 @@ import (
 	"syscall"
 
 	server "github.com/inference-gateway/adk/server"
-	otel "github.com/inference-gateway/adk/server/otel"
 	envconfig "github.com/sethvargo/go-envconfig"
 	cobra "github.com/spf13/cobra"
 	zap "go.uber.org/zap"
@@ -183,10 +175,11 @@ func runStart(ctx context.Context) error {
 	// deliberately does not map from the environment. Propagate them so the
 	// OpenTelemetry resource carries service.name / service.version instead of
 	// empty strings, and so any other consumer of cfg.A2A sees the real values.
-	// This must run before otel.NewOpenTelemetry below, which snapshots them
-	// into the telemetry resource.
 	cfg.A2A.AgentName = AgentName
 	cfg.A2A.AgentVersion = Version
+	// The OpenTelemetry SDK settings are read as A2A_OTEL_* through the ADK's
+	// A2A_-prefixed config (cfg.A2A.OTelConfig), so the single Process call above
+	// already loaded them - no separate OTel pass is required.
 
 	// Initialize logger
 	l, err := logger.NewLogger(ctx, &cfg)
@@ -196,26 +189,6 @@ func runStart(ctx context.Context) error {
 
 	l.Info("starting "+AgentName+" agent", zap.String("version", Version), zap.Bool("debug", cfg.A2A.Debug))
 	l.Debug("loaded configuration", zap.Any("config", cfg))
-
-	// --- BEGIN telemetry deviation from the generated template --------------
-	// The v0.51.0 template no longer wires OpenTelemetry explicitly; it lets
-	// A2AServerBuilder.Build() initialize telemetry internally when
-	// A2A_TELEMETRY_ENABLE=true. We deliberately keep the explicit
-	// otel.NewOpenTelemetry + WithTelemetry + ShutDown wiring (below) so the
-	// telemetry server is constructed and owned by this process. Because
-	// cfg.A2A.AgentName/AgentVersion are set above, the resource carries
-	// service.name=mock-agent / service.version instead of empty strings.
-	telemetry, err := otel.NewOpenTelemetry(&cfg.A2A, l)
-	if err != nil {
-		l.Warn("failed to initialize OpenTelemetry, continuing without telemetry", zap.Error(err))
-	} else if cfg.A2A.TelemetryConfig.Enable {
-		l.Info("OpenTelemetry enabled",
-			zap.String("metrics_port", cfg.A2A.TelemetryConfig.MetricsConfig.Port),
-		)
-	} else {
-		l.Debug("OpenTelemetry disabled (set A2A_TELEMETRY_ENABLE=true to enable)")
-	}
-	// --- END telemetry deviation --------------------------------------------
 
 	resolvedSkillsDir := skillsDir
 	if v := os.Getenv("A2A_SKILLS_DIR"); v != "" {
@@ -343,7 +316,7 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 		artifactsServer = nil
 	}
 
-	a2aBuilder := server.NewA2AServerBuilder(cfg.A2A, l).
+	a2aServer, err := server.NewA2AServerBuilder(cfg.A2A, l).
 		WithAgent(agent).
 		WithAgentCardFromFile(".well-known/agent-card.json", map[string]any{
 			"name":        AgentName,
@@ -353,16 +326,8 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 		}).
 		WithArtifactService(artifactService).
 		WithDefaultBackgroundTaskHandler().
-		WithDefaultStreamingTaskHandler()
-
-	// Re-applied telemetry deviation: inject the explicitly-constructed
-	// instance. WithTelemetry makes Build() reuse it and skip its own internal
-	// init, so there is no double-initialization.
-	if telemetry != nil {
-		a2aBuilder = a2aBuilder.WithTelemetry(telemetry)
-	}
-
-	a2aServer, err := a2aBuilder.Build()
+		WithDefaultStreamingTaskHandler().
+		Build()
 	if err != nil {
 		return fmt.Errorf("failed to create A2A server: %w", err)
 	}
@@ -394,11 +359,6 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 	a2aServer.Stop(ctx)
 	if artifactsServer != nil {
 		artifactsServer.Stop(ctx)
-	}
-	if telemetry != nil {
-		if err := telemetry.ShutDown(ctx); err != nil {
-			l.Warn("error shutting down OpenTelemetry", zap.Error(err))
-		}
 	}
 	l.Info("mock-agent agent stopped")
 	return nil

@@ -22,23 +22,16 @@ tools/simulate_tool_call.go
 skills/
 
 # Hand-maintained but kept in sync with the generated template. main.go
-# carries TWO deliberate deviations from `adl generate` output, each fenced
-# with BEGIN/END comments in the file:
-#   1. It wires internal/mock.NewMockLLMClient instead of the generator's
-#      default OpenAI-compatible client (mock-agent's whole purpose is to run
-#      without real LLM credentials). This is also why the file must be ignored
-#      at all: the generated template hardcodes
-#      server.NewOpenAICompatibleLLMClient with no seam to inject a custom
-#      client.
-#   2. It keeps the explicit OpenTelemetry wiring (otel.NewOpenTelemetry +
-#      WithTelemetry + ShutDown) that the v0.51.0 template dropped in favor of
-#      A2AServerBuilder.Build()'s internal init. mock-agent owns its telemetry
-#      lifecycle on purpose, so we re-apply this by hand.
-# When bumping the ADL CLI, regenerate into a scratch dir and re-apply just
-# those two fenced blocks (see the header note in main.go). Dropping this entry
-# entirely is blocked on an adl-cli extension point for a custom LLM client
-# (tracked upstream) - until then, keeping it synced by hand is how we pick up
-# template fixes like the OTel service.name propagation.
+# carries a SINGLE deviation from `adl generate` output: it wires
+# internal/mock.NewMockLLMClient instead of the generator's default
+# OpenAI-compatible client (mock-agent's whole purpose is to run without
+# real LLM credentials). It is ignored only because the generated template
+# hardcodes server.NewOpenAICompatibleLLMClient with no seam to inject a
+# custom client. When bumping the ADL CLI, regenerate into a scratch dir and
+# re-apply just that one swap (see the header note in main.go). Dropping this
+# entry entirely is blocked on an adl-cli extension point for a custom LLM
+# client (tracked upstream) - until then, keeping it synced by hand is how we
+# pick up template fixes like the OTel service.name propagation.
 main.go
 
 # Hand-authored example stacks (docker-compose, collector configs, docs)
