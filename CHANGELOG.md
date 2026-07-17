@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.3](https://github.com/inference-gateway/mock-agent/compare/v0.3.2...v0.3.3) (2026-07-17)
+
+### 👷 CI
+
+* **deps:** bump github.com/inference-gateway/sdk in the gomod group ([#86](https://github.com/inference-gateway/mock-agent/issues/86)) ([703369b](https://github.com/inference-gateway/mock-agent/commit/703369ba5ea3cbb7166a95509af8f85bbd6fb8b9))
+* **deps:** bump github.com/sethvargo/go-envconfig in the gomod group ([#89](https://github.com/inference-gateway/mock-agent/issues/89)) ([0d915fe](https://github.com/inference-gateway/mock-agent/commit/0d915fe9a4dea4186b8e7e795b12c31067317da0))
+* **deps:** bump inference-gateway/infer-action ([#87](https://github.com/inference-gateway/mock-agent/issues/87)) ([99f13b2](https://github.com/inference-gateway/mock-agent/commit/99f13b2fa4a31b20650f5ae43654032e38ec7ebc))
+* **deps:** bump the github-actions group with 3 updates ([#84](https://github.com/inference-gateway/mock-agent/issues/84)) ([bdb1679](https://github.com/inference-gateway/mock-agent/commit/bdb1679e56eb2229909541db0def6743908c8922))
+* **deps:** bump the gomod group with 2 updates ([#83](https://github.com/inference-gateway/mock-agent/issues/83)) ([db32fec](https://github.com/inference-gateway/mock-agent/commit/db32fec21259ab14960527229e6dbcb011e44c2b))
+
+### 🔧 Miscellaneous
+
+* **deps:** bump ADL CLI to v0.52.0 ([#88](https://github.com/inference-gateway/mock-agent/issues/88)) ([ebf1e6f](https://github.com/inference-gateway/mock-agent/commit/ebf1e6fdb855755bd709335152242399cd55a689))
+* **deps:** bump ADL CLI v0.51.0 -> v0.51.4 ([#85](https://github.com/inference-gateway/mock-agent/issues/85)) ([8352d8c](https://github.com/inference-gateway/mock-agent/commit/8352d8c36ea4a762beaab6794338790345ac869b))
+* **flox:** downgrade deps ([0f2938b](https://github.com/inference-gateway/mock-agent/commit/0f2938bd0160ba3573cf1fda1f8424dc6770e89b))
+
 ## [0.3.2](https://github.com/inference-gateway/mock-agent/compare/v0.3.1...v0.3.2) (2026-07-16)
 
 ### 🐛 Bug Fixes
