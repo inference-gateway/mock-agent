@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/inference-gateway/adk v0.23.3
+	github.com/inference-gateway/adk v0.23.4
 	github.com/inference-gateway/sdk v1.21.1
 	github.com/sethvargo/go-envconfig v1.3.1
 	github.com/spf13/cobra v1.10.2
