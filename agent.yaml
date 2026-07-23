@@ -250,7 +250,7 @@ spec:
       version: "1.26.4"
       vendor:
         deps:
-          - github.com/inference-gateway/sdk@v1.21.0
+          - github.com/inference-gateway/sdk@v1.26.1
         devdeps: []
   hooks:
     post:
