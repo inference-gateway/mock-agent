@@ -90,9 +90,9 @@ infer agents add mock-agent http://localhost:8080 \
 
 | Skill | Description | Source |
 |-------|-------------|--------|
-| `connectivity-check` | Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded. | bare scaffold (`skills/connectivity-check.md`) |
-| `error-injection` | Use this when the user wants to test how their client handles different failure modes. Invokes the error tool across the supported error_type values (validation, timeout, internal, not_found) so the caller can observe each error path. | bare scaffold (`skills/error-injection.md`) |
-| `load-simulation` | Use this when the user wants to test client behavior under slow responses with realistic payloads. Combines the delay tool (to introduce latency) with the random_data tool (to produce a test payload of the requested shape). | bare scaffold (`skills/load-simulation.md`) |
+| `connectivity-check` | Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded. | bare scaffold (`.agents/skills/connectivity-check/SKILL.md`) |
+| `error-injection` | Use this when the user wants to test how their client handles different failure modes. Invokes the error tool across the supported error_type values (validation, timeout, internal, not_found) so the caller can observe each error path. | bare scaffold (`.agents/skills/error-injection/SKILL.md`) |
+| `load-simulation` | Use this when the user wants to test client behavior under slow responses with realistic payloads. Combines the delay tool (to introduce latency) with the random_data tool (to produce a test payload of the requested shape). | bare scaffold (`.agents/skills/load-simulation/SKILL.md`) |
 
 ## Documentation
 - [Getting Started](docs/getting-started.md)
