@@ -102,17 +102,17 @@ This agent ships 3 markdown skills that are loaded into the system prompt at sta
 ### connectivity-check
 - **Description**: Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded.
 - **Tags**: mock, testing, connectivity
-- **Source**: scaffolded locally (`skills/connectivity-check/SKILL.md`)
+- **Source**: scaffolded locally (`.agents/skills/connectivity-check/SKILL.md`)
 
 ### error-injection
 - **Description**: Use this when the user wants to test how their client handles different failure modes. Invokes the error tool across the supported error_type values (validation, timeout, internal, not_found) so the caller can observe each error path.
 - **Tags**: mock, testing, error-handling
-- **Source**: scaffolded locally (`skills/error-injection/SKILL.md`)
+- **Source**: scaffolded locally (`.agents/skills/error-injection/SKILL.md`)
 
 ### load-simulation
 - **Description**: Use this when the user wants to test client behavior under slow responses with realistic payloads. Combines the delay tool (to introduce latency) with the random_data tool (to produce a test payload of the requested shape).
 - **Tags**: mock, testing, performance
-- **Source**: scaffolded locally (`skills/load-simulation/SKILL.md`)
+- **Source**: scaffolded locally (`.agents/skills/load-simulation/SKILL.md`)
 
 ## Server Configuration
 
@@ -196,7 +196,7 @@ docker run -p 8080:8080 mock-agent
 │   └── random_data.go            # Generate random test data
 │   └── validate.go               # Validate input against common patterns
 │   └── simulate_tool_call.go     # Simulate a single tool call for load, latency and failure testing. Emits an instrumented span (gen_ai.tool.name) with a configurable duration and optional error status. The mock LLM drives this once per entry of a multi-tool-call workload.
-├── skills/                       # Skill directories (SKILL.md + optional assets)
+├── .agents/skills/               # Skill directories (SKILL.md + optional assets)
 │   └── connectivity-check/       # Use this when the user wants to verify the agent is reachable and responding correctly. Invokes the echo tool with a known payload and confirms the round-trip succeeded.
 │       └── SKILL.md              # Playbook prepended to the system prompt
 │   └── error-injection/          # Use this when the user wants to test how their client handles different failure modes. Invokes the error tool across the supported error_type values (validation, timeout, internal, not_found) so the caller can observe each error path.
