@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.6](https://github.com/inference-gateway/mock-agent/compare/v0.3.5...v0.3.6) (2026-07-23)
+
+### 👷 CI
+
+* **deps:** bump docker/login-action in the github-actions group ([#95](https://github.com/inference-gateway/mock-agent/issues/95)) ([348fbc9](https://github.com/inference-gateway/mock-agent/commit/348fbc9a6296c5f4b7a4884516894d4a42e90fe3))
+* **deps:** bump github.com/inference-gateway/sdk from 1.26.0 to 1.26.1 in the gomod group ([#94](https://github.com/inference-gateway/mock-agent/issues/94)) ([1f85599](https://github.com/inference-gateway/mock-agent/commit/1f8559910dfb2b118d39772423367cd3b238e366))
+
 ## [0.3.5](https://github.com/inference-gateway/mock-agent/compare/v0.3.4...v0.3.5) (2026-07-23)
 
 ### 🔧 Miscellaneous

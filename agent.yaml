@@ -6,7 +6,7 @@ metadata:
   description:
     A2A agent server for mocking and testing. Uses a mock LLM client - no API
     keys required!
-  version: 0.3.5
+  version: 0.3.6
 spec:
   capabilities:
     streaming: true
