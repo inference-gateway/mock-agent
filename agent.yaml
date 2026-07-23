@@ -60,6 +60,9 @@ spec:
       - Handle edge cases gracefully
 
       Your purpose is to provide consistent, reproducible responses for testing A2A protocol implementations.
+    mcp:
+      enabled: false
+      servers: []
   config:
     tools:
       read:
