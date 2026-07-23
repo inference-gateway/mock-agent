@@ -9,44 +9,39 @@ tags:
 
 # load-simulation
 
-TODO: Describe when and how the agent should use this skill. Lead with an
-action-oriented "Use this when…" sentence so the model can decide whether
-to apply it. The full body of this file is prepended to the system prompt
-at runtime.
+Use this when the user wants to test how their client behaves under slow
+responses carrying realistic test payloads - e.g. verifying timeouts,
+streaming buffers, progress indicators, or retry logic.
 
 ## When to use
 
-Describe the user intents or task shapes that should trigger this skill.
-Be concrete - list the kinds of requests, signals, or context that map to
-this playbook.
+- The user asks to "simulate slow responses", "test timeout handling",
+  "produce a delayed payload", or similar.
+- The user wants a response that combines latency with a non-trivial body
+  (rather than just an `echo` round-trip).
+- The user is benchmarking client-side handling of slow upstreams.
+
+Do NOT use this skill for pure latency tests (call `delay` directly) or for
+pure data generation (call `random_data` directly).
 
 ## Workflow
 
-1. ...
-2. ...
-3. ...
+1. Parse the user's request for two parameters:
+   - **Delay**: seconds to wait before responding. Default to `2` if not
+     specified.
+   - **Payload shape**: the `data_type` and `count` to pass to
+     `random_data`. Default to `data_type: json`, `count: 1` if not
+     specified.
+2. Call `random_data` first with the chosen `data_type` and `count` to
+   build the payload. Capture the JSON result.
+3. Call `delay` with `duration_seconds` set to the requested delay, and
+   `message` set to a short summary of the payload (e.g.
+   `"5 json records ready"`).
+4. Return the user a single combined response that reports:
+   - The actual delay observed (from the `delay` tool's response).
+   - The full random payload (from step 2).
 
 ## Tools
 
-List the tools this skill expects to call (declared under `spec.tools` in
-the ADL manifest), and the order in which they're typically invoked.
-
-## Bundled assets
-
-This skill lives in its own directory under `.agents/skills/load-simulation/`
-(also reachable as `.claude/skills/load-simulation/` via the generated
-`.claude/skills` -> `../.agents/skills` symlink). You can ship arbitrary scripts, templates, or
-reference material alongside `SKILL.md` - the `.adl-ignore` file protects
-the whole directory from being clobbered on regeneration. Suggested layout:
-
-```
-.agents/skills/load-simulation/
-├── SKILL.md          # this file
-├── scripts/          # optional helper scripts (Python, shell, etc.)
-├── templates/        # optional file templates the agent can fill in
-└── resources/        # optional static reference material
-```
-
-Reference bundled files by relative path from `SKILL.md` (e.g.
-`scripts/triage.py`, `templates/report.md`) so the agent can locate them
-at runtime.
+- `random_data` - generates the payload.
+- `delay` - introduces the configured latency.

@@ -9,44 +9,38 @@ tags:
 
 # error-injection
 
-TODO: Describe when and how the agent should use this skill. Lead with an
-action-oriented "Use this when…" sentence so the model can decide whether
-to apply it. The full body of this file is prepended to the system prompt
-at runtime.
+Use this when the user wants to exercise their client's error-handling paths
+by deliberately triggering each kind of failure the agent can produce.
 
 ## When to use
 
-Describe the user intents or task shapes that should trigger this skill.
-Be concrete - list the kinds of requests, signals, or context that map to
-this playbook.
+- The user asks to "test error handling", "simulate failures", "exercise the
+  retry path", or similar.
+- The user names a specific error condition (validation / timeout / internal
+  / not_found) and wants the agent to return it.
+- The user is building or debugging a client that needs to behave correctly
+  when the agent surfaces an error.
+
+Do NOT use this skill when the user is reporting an actual problem - in that
+case, investigate the real cause rather than injecting a synthetic error.
 
 ## Workflow
 
-1. ...
-2. ...
-3. ...
+1. Determine scope:
+   - If the user named a specific `error_type`, invoke `error` once with
+     that value.
+   - If the user asked for "all errors" or didn't specify, invoke `error`
+     once per supported value, in this order:
+     `validation` -> `timeout` -> `internal` -> `not_found`.
+2. If the user supplied a custom message, pass it via the `message`
+   parameter; otherwise let the tool's default message stand.
+3. For each invocation, capture the returned error and report it back to
+   the user verbatim so they can match it against their client's handling.
+4. Summarize at the end: which error types were exercised and what the
+   resulting error messages were.
 
 ## Tools
 
-List the tools this skill expects to call (declared under `spec.tools` in
-the ADL manifest), and the order in which they're typically invoked.
-
-## Bundled assets
-
-This skill lives in its own directory under `.agents/skills/error-injection/`
-(also reachable as `.claude/skills/error-injection/` via the generated
-`.claude/skills` -> `../.agents/skills` symlink). You can ship arbitrary scripts, templates, or
-reference material alongside `SKILL.md` - the `.adl-ignore` file protects
-the whole directory from being clobbered on regeneration. Suggested layout:
-
-```
-.agents/skills/error-injection/
-├── SKILL.md          # this file
-├── scripts/          # optional helper scripts (Python, shell, etc.)
-├── templates/        # optional file templates the agent can fill in
-└── resources/        # optional static reference material
-```
-
-Reference bundled files by relative path from `SKILL.md` (e.g.
-`scripts/triage.py`, `templates/report.md`) so the agent can locate them
-at runtime.
+- `error` - sole tool used by this skill. Accepts `error_type` (required,
+  one of `validation`, `timeout`, `internal`, `not_found`) and an optional
+  `message`.

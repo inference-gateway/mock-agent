@@ -308,8 +308,8 @@ func TestDetectSkill_KnownTriggers(t *testing.T) {
 func TestReadSkillDescription_ReturnsFrontmatterDescription(t *testing.T) {
 	t.Parallel()
 	// Tests run from the package directory (internal/mock), so reach back
-	// to the repo root's skills/ tree for a real SKILL.md.
-	desc, err := readSkillDescription("../../skills/connectivity-check/SKILL.md")
+	// to the repo root's .agents/skills/ tree for a real SKILL.md.
+	desc, err := readSkillDescription("../../.agents/skills/connectivity-check/SKILL.md")
 	if err != nil {
 		t.Fatalf("readSkillDescription: %v", err)
 	}

@@ -961,7 +961,7 @@ func newToolCall(name, arguments string) *sdk.ChatCompletionMessageToolCall {
 // SKILL.md frontmatter so the log carries the skill's own description -
 // useful when debugging which skill a request was assigned to.
 func (m *MockLLMClient) logSkillMatch(skill, trigger, userMessage string) {
-	path := filepath.Join("skills", skill, "SKILL.md")
+	path := filepath.Join(".agents/skills", skill, "SKILL.md")
 	desc, readErr := readSkillDescription(path)
 	fields := []zap.Field{
 		zap.String("skill", skill),

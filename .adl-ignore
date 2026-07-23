@@ -17,9 +17,9 @@ tools/validate.go
 tools/simulate_tool_call.go
 
 # Skill playbooks are hand-authored; the generator only seeds blank
-# scaffolds. Protect the whole skills/ tree so regen never clobbers
+# scaffolds. Protect the whole .agents/skills/ tree so regen never clobbers
 # the bodies (or any bundled scripts/templates/resources).
-skills/
+.agents/skills/
 
 # Hand-maintained but kept in sync with the generated template. main.go
 # carries a SINGLE deviation from `adl generate` output: it wires
