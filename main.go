@@ -51,6 +51,11 @@ var (
 // startup. Override with A2A_SKILLS_DIR.
 const skillsDir = ".agents/skills"
 
+// defaultMaxChatCompletionIterations mirrors the ADK's own default and is used
+// when the configured value is unset/0, so the agent runs multi-step tool-call
+// workloads instead of stalling immediately.
+const defaultMaxChatCompletionIterations = 50
+
 // loadSkillsManifest walks the configured skills directory, reads each
 // <skill>/SKILL.md, extracts the YAML frontmatter (name + description),
 // and returns an `AVAILABLE SKILLS:` block to append to the system
@@ -288,11 +293,16 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 		systemPrompt = systemPrompt + "\n\n" + skillsPrompt
 	}
 
+	maxIterations := cfg.A2A.AgentConfig.MaxChatCompletionIterations
+	if maxIterations < 1 {
+		maxIterations = defaultMaxChatCompletionIterations
+	}
+
 	agent, err := server.NewAgentBuilder(l).
 		WithConfig(&cfg.A2A.AgentConfig).
 		WithLLMClient(llmClient).
 		WithToolBox(toolBox).
-		WithMaxChatCompletion(cfg.A2A.AgentConfig.MaxChatCompletionIterations).
+		WithMaxChatCompletion(maxIterations).
 		WithSystemPrompt(systemPrompt).
 		Build()
 	if err != nil {
