@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0](https://github.com/inference-gateway/mock-agent/compare/v0.3.6...v0.4.0) (2026-07-29)
+
+### ✨ Features
+
+* **agent:** add default max chat completion iterations for multi-step tool calls ([07d39c9](https://github.com/inference-gateway/mock-agent/commit/07d39c99d8dc57835863ebbd54ffa76b7a4421e1))
+
+### 👷 CI
+
+* **deps:** bump anthropics/claude-code-action in the github-actions group ([#97](https://github.com/inference-gateway/mock-agent/issues/97)) ([fe0d14d](https://github.com/inference-gateway/mock-agent/commit/fe0d14d1f4a05a23b9fe3f48b6d28c239a678b29))
+* **deps:** bump docker/login-action in the github-actions group ([#99](https://github.com/inference-gateway/mock-agent/issues/99)) ([d9b7c6f](https://github.com/inference-gateway/mock-agent/commit/d9b7c6f305fbd835ec45b182f968ef1ec4784443))
+
+### 🔧 Miscellaneous
+
+* **adl:** refresh agent.yaml defaults from ADL CLI v0.57.0 ([#100](https://github.com/inference-gateway/mock-agent/issues/100)) ([eb406ff](https://github.com/inference-gateway/mock-agent/commit/eb406fff0315f3043e3b7ebb43ed7468fc93c98d))
+* **deps:** bump ADL CLI v0.55.0 -> v0.56.0 ([#96](https://github.com/inference-gateway/mock-agent/issues/96)) ([5e04ef2](https://github.com/inference-gateway/mock-agent/commit/5e04ef22a7562cb27ffb7ca3322bbf3782fb1eb7))
+* **deps:** bump ADL CLI v0.56.0 -> v0.57.0 ([#98](https://github.com/inference-gateway/mock-agent/issues/98)) ([98cefb3](https://github.com/inference-gateway/mock-agent/commit/98cefb35afe291abb41228e41e164d27b45c0ab3))
+* **deps:** bump ADL CLI v0.57.0 -> v0.57.1 ([#101](https://github.com/inference-gateway/mock-agent/issues/101)) ([5b5379f](https://github.com/inference-gateway/mock-agent/commit/5b5379fcd512b6b9a822d329cdb4209d866029cb))
+
 ## [0.3.6](https://github.com/inference-gateway/mock-agent/compare/v0.3.5...v0.3.6) (2026-07-23)
 
 ### 👷 CI
