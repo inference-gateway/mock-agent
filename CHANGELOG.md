@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1](https://github.com/inference-gateway/mock-agent/compare/v0.4.0...v0.4.1) (2026-08-05)
+
+### 👷 CI
+
+* remove deprecated ollama-api-key input ([#105](https://github.com/inference-gateway/mock-agent/issues/105)) ([3c81cf6](https://github.com/inference-gateway/mock-agent/commit/3c81cf6f7ed47390da07a751a722031cec7a1975))
+
+### 🔧 Miscellaneous
+
+* **deps:** bump ADL CLI v0.57.1 -> v0.57.2 ([#102](https://github.com/inference-gateway/mock-agent/issues/102)) ([5266a25](https://github.com/inference-gateway/mock-agent/commit/5266a2524af061af634a087411444f922cb44d83))
+* **deps:** bump ADL CLI v0.57.2 -> v0.58.0 ([#103](https://github.com/inference-gateway/mock-agent/issues/103)) ([778ea93](https://github.com/inference-gateway/mock-agent/commit/778ea9337c70236efceef1e7329a77261e3afb0b))
+* **deps:** bump ADL CLI v0.58.0 -> v0.58.1 ([#104](https://github.com/inference-gateway/mock-agent/issues/104)) ([4e364fb](https://github.com/inference-gateway/mock-agent/commit/4e364fbb9bb6cf053da6c0e5697578ca54fee176))
+* **deps:** bump ADL CLI v0.58.1 -> v0.59.0 ([#106](https://github.com/inference-gateway/mock-agent/issues/106)) ([eba4d35](https://github.com/inference-gateway/mock-agent/commit/eba4d35ec95231473ea963d6e61d1afedc7322e4))
+
 ## [0.4.0](https://github.com/inference-gateway/mock-agent/compare/v0.3.6...v0.4.0) (2026-07-29)
 
 ### ✨ Features
