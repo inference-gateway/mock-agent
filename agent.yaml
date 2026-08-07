@@ -251,6 +251,7 @@ spec:
       vendor:
         deps:
           - github.com/inference-gateway/sdk@v1.26.1
+          - go.opentelemetry.io/otel/sdk@v1.45.0
         devdeps: []
   hooks:
     post:
