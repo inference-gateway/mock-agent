@@ -33,6 +33,8 @@ func TestReadTrigger_EndToEnd_ExecutesRealReadTool(t *testing.T) {
 		t.Fatalf("seed file: %v", err)
 	}
 
+	t.Setenv("TOOLS_READ_ALLOWED_ROOTS", dir)
+
 	readTool, err := tools.NewReadTool(ctx, zap.NewNop())
 	if err != nil {
 		t.Fatalf("NewReadTool: %v", err)
