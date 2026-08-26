@@ -33,6 +33,13 @@ func TestReadTrigger_EndToEnd_ExecutesRealReadTool(t *testing.T) {
 		t.Fatalf("seed file: %v", err)
 	}
 
+	// The generated Read built-in is fail-closed since ADL CLI v0.62.1: with no
+	// allowed_roots it denies every path outside the skills and artifacts
+	// directories. NewReadTool resolves its config from the environment, so
+	// admit the temp dir the same way a deployment would via
+	// spec.config.tools.read.allowed_roots.
+	t.Setenv("TOOLS_READ_ALLOWED_ROOTS", dir)
+
 	readTool, err := tools.NewReadTool(ctx, zap.NewNop())
 	if err != nil {
 		t.Fatalf("NewReadTool: %v", err)
