@@ -1,6 +1,6 @@
 module github.com/inference-gateway/mock-agent
 
-go 1.26.4
+go 1.26.7
 
 require (
 	github.com/google/uuid v1.6.0
