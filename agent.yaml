@@ -6,7 +6,7 @@ metadata:
   description:
     A2A agent server for mocking and testing. Uses a mock LLM client - no API
     keys required!
-  version: 0.4.2
+  version: 0.4.3
 spec:
   capabilities:
     streaming: true
@@ -250,7 +250,7 @@ spec:
       version: "1.26.7"
       vendor:
         deps:
-          - github.com/inference-gateway/sdk@v1.35.0
+          - github.com/inference-gateway/sdk@v1.36.0
           - go.opentelemetry.io/otel/sdk@v1.45.0
         devdeps: []
   hooks:
