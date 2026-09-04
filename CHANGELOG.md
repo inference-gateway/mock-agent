@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.3](https://github.com/inference-gateway/mock-agent/compare/v0.4.2...v0.4.3) (2026-09-04)
+
+### 👷 CI
+
+* **deps:** bump github.com/inference-gateway/sdk from 1.35.0 to 1.36.0 in the gomod group ([#135](https://github.com/inference-gateway/mock-agent/issues/135)) ([7a03d59](https://github.com/inference-gateway/mock-agent/commit/7a03d599854dc3445c8a086e4b789cc2511154b5))
+* **deps:** bump github.com/inference-gateway/sdk in the gomod group ([#115](https://github.com/inference-gateway/mock-agent/issues/115)) ([32dd1d7](https://github.com/inference-gateway/mock-agent/commit/32dd1d70b3f3d4d20b16725ee804e4288d93304b))
+* **deps:** bump go.opentelemetry.io/otel/sdk from 1.44.0 to 1.45.0 in the gomod group across 1 directory ([#109](https://github.com/inference-gateway/mock-agent/issues/109)) ([4078ddb](https://github.com/inference-gateway/mock-agent/commit/4078ddb3878c6f64970c538f2e40574a517beeeb))
+* **deps:** bump the gomod group across 1 directory with 2 updates ([#131](https://github.com/inference-gateway/mock-agent/issues/131)) ([0ecfdf9](https://github.com/inference-gateway/mock-agent/commit/0ecfdf9782b5000c3212f8045597cfc28a5fc4f7))
+
+### 🔧 Miscellaneous
+
+* bump go toolchain to 1.26.7 ([#132](https://github.com/inference-gateway/mock-agent/issues/132)) ([9732915](https://github.com/inference-gateway/mock-agent/commit/97329158dcd39081fff994fc839689e2a2f77168))
+* **deps:** bump ADL CLI to v0.62.1 ([#122](https://github.com/inference-gateway/mock-agent/issues/122)) ([bc30ddb](https://github.com/inference-gateway/mock-agent/commit/bc30ddbf9264dad5ac485a28aaf40ea5898224c0))
+* **deps:** bump ADL CLI v0.60.1 -> v0.60.2 ([#111](https://github.com/inference-gateway/mock-agent/issues/111)) ([b24280a](https://github.com/inference-gateway/mock-agent/commit/b24280abf94aae659e2b049db583d0260f457a6c))
+* **deps:** bump ADL CLI v0.60.2 -> v0.60.3 ([#112](https://github.com/inference-gateway/mock-agent/issues/112)) ([74e3cbd](https://github.com/inference-gateway/mock-agent/commit/74e3cbd56ea1426102aea2c32351c0f3809e1414))
+* **deps:** bump ADL CLI v0.60.3 -> v0.60.4 ([#114](https://github.com/inference-gateway/mock-agent/issues/114)) ([eea80ab](https://github.com/inference-gateway/mock-agent/commit/eea80aba23edfb0f174c7e02e7533823cb29846b))
+* **deps:** bump ADL CLI v0.60.4 -> v0.60.5 ([#117](https://github.com/inference-gateway/mock-agent/issues/117)) ([ce6dd68](https://github.com/inference-gateway/mock-agent/commit/ce6dd687e3bdbc93c0773530e2cc4a7d99ab735c))
+* **deps:** bump ADL CLI v0.60.5 -> v0.61.1 ([#118](https://github.com/inference-gateway/mock-agent/issues/118)) ([a0f0e6b](https://github.com/inference-gateway/mock-agent/commit/a0f0e6b2f9ba9bcf273b98a2f5339ba714f39c37))
+* **deps:** bump ADL CLI v0.61.1 -> v0.61.3 ([#119](https://github.com/inference-gateway/mock-agent/issues/119)) ([c90d98d](https://github.com/inference-gateway/mock-agent/commit/c90d98d70cf663813ca349cac1318a3c0f433e0f))
+* **deps:** bump ADL CLI v0.61.3 -> v0.61.4 ([#121](https://github.com/inference-gateway/mock-agent/issues/121)) ([59e0cc4](https://github.com/inference-gateway/mock-agent/commit/59e0cc4b35266b4528ab21411fc27f0095add718))
+* **deps:** bump ADL CLI v0.62.1 -> v0.62.2 ([#124](https://github.com/inference-gateway/mock-agent/issues/124)) ([52e3f14](https://github.com/inference-gateway/mock-agent/commit/52e3f141c6e41cab2b33fdac1963069c82217e31))
+* **deps:** bump ADL CLI v0.62.2 -> v0.62.3 ([#125](https://github.com/inference-gateway/mock-agent/issues/125)) ([2339bf2](https://github.com/inference-gateway/mock-agent/commit/2339bf2698bab3bad64ff810b4667c4ce41f23eb))
+* **deps:** bump ADL CLI v0.62.3 -> v0.62.5 ([#130](https://github.com/inference-gateway/mock-agent/issues/130)) ([8e41b1f](https://github.com/inference-gateway/mock-agent/commit/8e41b1fb189dcd504e72e6f017dedbc7a2228cb5))
+* **deps:** bump ADL CLI v0.62.5 -> v0.62.8 ([#134](https://github.com/inference-gateway/mock-agent/issues/134)) ([084f92d](https://github.com/inference-gateway/mock-agent/commit/084f92d63c1e53ce34a42f7c58b4178272a41002))
+* update sdk dependency version to 1.35.0 ([7902c31](https://github.com/inference-gateway/mock-agent/commit/7902c31ec32ea04c5137ab77095a01d46fae3d7a))
+
 ## [0.4.2](https://github.com/inference-gateway/mock-agent/compare/v0.4.1...v0.4.2) (2026-08-07)
 
 ### 🔧 Miscellaneous
