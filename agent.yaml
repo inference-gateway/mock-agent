@@ -255,6 +255,12 @@ spec:
         devdeps: []
   hooks:
     post:
+      # `adl generate` rewrites go.mod from spec.language.go.vendor.deps,
+      # which resolves indirect peer dependencies (grpc comes in via the
+      # ADK) back down by minimum-version selection and would revert
+      # dependabot security patches. Re-apply the patch after each
+      # generate; bump this pin together with each future patch PR.
+      - go get google.golang.org/grpc@v1.83.1
       - go mod tidy
   scm:
     provider: github
