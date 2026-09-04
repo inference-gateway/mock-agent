@@ -7,7 +7,7 @@ predictable server.
 
 ## Prerequisites
 
-- Go 1.26.4+ (matches `spec.language.go.version` in `agent.yaml`), or Docker
+- Go 1.26.7+ (matches `spec.language.go.version` in `agent.yaml`), or Docker
 - Optionally [`task`](https://taskfile.dev) to use the generated `Taskfile.yml`
 
 ## Run from source
