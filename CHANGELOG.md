@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.5](https://github.com/inference-gateway/mock-agent/compare/v0.4.4...v0.4.5) (2026-09-15)
+
+### 🐛 Bug Fixes
+
+* **adl:** drop stale grpc post hook that downgrades adk ([#153](https://github.com/inference-gateway/mock-agent/issues/153)) ([cfbfeb9](https://github.com/inference-gateway/mock-agent/commit/cfbfeb97882ffc397e9354eabb1937a07aa8c2e9))
+
+### 🔧 Miscellaneous
+
+* **deps:** bump ADK v0.26.4 -> v0.27.0 ([#151](https://github.com/inference-gateway/mock-agent/issues/151)) ([191429d](https://github.com/inference-gateway/mock-agent/commit/191429d485032e688d4b4c1c786b12dfd2ccecca))
+* **deps:** bump ADL CLI v0.63.1 -> v0.63.2 ([#148](https://github.com/inference-gateway/mock-agent/issues/148)) ([60dd754](https://github.com/inference-gateway/mock-agent/commit/60dd7543acfcc81e515a4ef271fe74be0ab3d560))
+* **deps:** bump ADL CLI v0.63.2 -> v0.63.3 ([#149](https://github.com/inference-gateway/mock-agent/issues/149)) ([2c60d9b](https://github.com/inference-gateway/mock-agent/commit/2c60d9b8c5003c7b3add37aa845cf8261606ed40))
+
 ## [0.4.4](https://github.com/inference-gateway/mock-agent/compare/v0.4.3...v0.4.4) (2026-09-15)
 
 ### 👷 CI
