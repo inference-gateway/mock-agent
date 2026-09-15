@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.4](https://github.com/inference-gateway/mock-agent/compare/v0.4.3...v0.4.4) (2026-09-15)
+
+### 👷 CI
+
+* **deps:** bump github.com/inference-gateway/sdk from 1.36.0 to 1.37.1 in the gomod group ([#137](https://github.com/inference-gateway/mock-agent/issues/137)) ([408a257](https://github.com/inference-gateway/mock-agent/commit/408a257acb0a6b4e1a25b6997a3e61376f4dd85d))
+* **deps:** bump google.golang.org/grpc from 1.83.0 to 1.83.1 ([#126](https://github.com/inference-gateway/mock-agent/issues/126)) ([b88bc31](https://github.com/inference-gateway/mock-agent/commit/b88bc3134e18a9029ce847c0391348d0454ab64e))
+
+### 🔧 Miscellaneous
+
+* **adl:** refresh agent.yaml defaults from ADL CLI v0.63.0 ([#143](https://github.com/inference-gateway/mock-agent/issues/143)) ([3517e06](https://github.com/inference-gateway/mock-agent/commit/3517e06940630c3f453fa3e203896f859081b8a8))
+* **deps:** bump ADL CLI v0.62.10 -> v0.62.12 ([#141](https://github.com/inference-gateway/mock-agent/issues/141)) ([49f5444](https://github.com/inference-gateway/mock-agent/commit/49f54445177b6782cee0946ecaedb1d067fe91ac))
+* **deps:** bump ADL CLI v0.62.12 -> v0.63.0 ([#144](https://github.com/inference-gateway/mock-agent/issues/144)) ([6bb5f1d](https://github.com/inference-gateway/mock-agent/commit/6bb5f1dcad3f3eff78550e52d462cc87707eab40))
+* **deps:** bump ADL CLI v0.62.8 -> v0.62.9 ([#139](https://github.com/inference-gateway/mock-agent/issues/139)) ([7ec1a37](https://github.com/inference-gateway/mock-agent/commit/7ec1a3733f679badeb6120ffef51e57dc77da133))
+* **deps:** bump ADL CLI v0.62.9 -> v0.62.10 ([#140](https://github.com/inference-gateway/mock-agent/issues/140)) ([3e8ab51](https://github.com/inference-gateway/mock-agent/commit/3e8ab519a2e09062c735ae068ff4400960b11fe3))
+* **deps:** bump ADL CLI v0.63.0 -> v0.63.1 ([#145](https://github.com/inference-gateway/mock-agent/issues/145)) ([e8144dc](https://github.com/inference-gateway/mock-agent/commit/e8144dcbd459a9310909943fec8eb6f0f9b6f419))
+* sync generated project with ADL manifest ([#142](https://github.com/inference-gateway/mock-agent/issues/142)) ([955d2c2](https://github.com/inference-gateway/mock-agent/commit/955d2c2e66d0ba839cf8717022b8d0569cd39a2e))
+
 ## [0.4.3](https://github.com/inference-gateway/mock-agent/compare/v0.4.2...v0.4.3) (2026-09-04)
 
 ### 👷 CI
