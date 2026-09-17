@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.6](https://github.com/inference-gateway/mock-agent/compare/v0.4.5...v0.4.6) (2026-09-17)
+
+### 🔧 Miscellaneous
+
+* **deps:** bump ADL CLI v0.63.3 -> v0.63.4 ([#155](https://github.com/inference-gateway/mock-agent/issues/155)) ([4b3242d](https://github.com/inference-gateway/mock-agent/commit/4b3242d313b16eeb6e5537539dd76e16cdd9bb2a))
+
 ## [0.4.5](https://github.com/inference-gateway/mock-agent/compare/v0.4.4...v0.4.5) (2026-09-15)
 
 ### 🐛 Bug Fixes
