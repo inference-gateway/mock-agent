@@ -5,7 +5,7 @@
 FROM golang:1.26.7-alpine AS builder
 
 # Build arguments for version injection
-ARG VERSION="0.4.8"
+ARG VERSION="0.4.9"
 ARG AGENT_NAME="mock-agent"
 ARG AGENT_DESCRIPTION="A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!"
 
