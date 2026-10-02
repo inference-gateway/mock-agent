@@ -11,7 +11,6 @@ spec:
   capabilities:
     streaming: true
     pushNotifications: false
-    stateTransitionHistory: false
   artifacts:
     enabled: true
   telemetry:
@@ -68,6 +67,11 @@ spec:
       read:
         enabled: true
         max_lines: 2000
+        allowed_roots:
+          - README.md
+          - go.mod
+          - agent.yaml
+          - .well-known
   tools:
     - id: read
     - id: echo
@@ -250,7 +254,7 @@ spec:
       version: "1.26.7"
       vendor:
         deps:
-          - github.com/inference-gateway/sdk@v1.40.2
+          - github.com/inference-gateway/sdk@v1.41.0
           - go.opentelemetry.io/otel/sdk@v1.46.0
         devdeps: []
   hooks:
