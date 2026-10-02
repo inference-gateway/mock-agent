@@ -22,16 +22,18 @@ tools/simulate_tool_call.go
 .agents/skills/
 
 # Hand-maintained but kept in sync with the generated template. main.go
-# carries a SINGLE deviation from `adl generate` output: it wires
+# carries two marked deviations from `adl generate` output: it wires
 # internal/mock.NewMockLLMClient instead of the generator's default
 # OpenAI-compatible client (mock-agent's whole purpose is to run without
-# real LLM credentials). It is ignored only because the generated template
-# hardcodes server.NewOpenAICompatibleLLMClient with no seam to inject a
-# custom client. When bumping the ADL CLI, regenerate into a scratch dir and
-# re-apply just that one swap (see the header note in main.go). Dropping this
-# entry entirely is blocked on an adl-cli extension point for a custom LLM
-# client (tracked upstream) - until then, keeping it synced by hand is how we
-# pick up template fixes like the OTel service.name propagation.
+# real LLM credentials), and it floors the chat-completion iteration count.
+# It is ignored only because the generated template hardcodes
+# server.NewOpenAICompatibleLLMClient with no seam to inject a custom client.
+# When bumping the ADL CLI, temporarily comment out the entry below, run
+# `task generate`, re-apply just those deviations (see the header note in
+# main.go), and restore the entry. Dropping this entry entirely is blocked on
+# an adl-cli extension point for a custom LLM client (tracked upstream) -
+# until then, keeping it synced by hand is how we pick up template fixes like
+# the OTel service.name propagation.
 main.go
 
 # Hand-authored example stacks (docker-compose, collector configs, docs)
