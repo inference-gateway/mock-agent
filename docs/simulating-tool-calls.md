@@ -53,6 +53,6 @@ MOCK_TOOL_CALL_DURATION_MS=250 MOCK_TOOL_CALLS=read,write,summarize
 > - The number of calls is ultimately bounded by
 >   `A2A_AGENT_CLIENT_MAX_CHAT_COMPLETION_ITERATIONS` (one call per iteration,
 >   plus a final response).
-> - Turn on tracing (`A2A_TELEMETRY_ENABLE=true`, `A2A_OTEL_TRACES_EXPORTER=otlp`)
+> - Turn on tracing (`A2A_TELEMETRY_ENABLED=true`, `A2A_OTEL_TRACES_EXPORTER=otlp`)
 >   to see the spans — see
 >   [`examples/opentelemetry`](../examples/opentelemetry/README.md).

@@ -52,9 +52,10 @@ docker run --rm -it --network host ghcr.io/inference-gateway/a2a-debugger:latest
   --server-url http://localhost:8080 tasks submit "read go.mod"
 ```
 
-> A tool result whose contents include the words "error"/"failed" is treated as
-> a simulated failure, so the task is marked failed (the span is still emitted).
-> See [`examples/opentelemetry`](../examples/opentelemetry/README.md) for the
+> Only paths under the `Read` tool's `allowed_roots` are readable (`README.md`,
+> `go.mod`, `agent.yaml`, `.well-known/` by default; override with
+> `TOOLS_READ_ALLOWED_ROOTS`). A denied or missing path marks the task failed,
+> but the span is still emitted. See [`examples/opentelemetry`](../examples/opentelemetry/README.md) for the
 > full tracing stack, including the `infer` -> `a2a.request` -> `tool.read`
 > distributed trace.
 

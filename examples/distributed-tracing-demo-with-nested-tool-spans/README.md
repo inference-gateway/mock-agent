@@ -43,7 +43,7 @@ still need a collector **listening** there or the spans are silently dropped —
 point the exporter at one you are running:
 
 ```bash
-A2A_TELEMETRY_ENABLE=true \
+A2A_TELEMETRY_ENABLED=true \
 A2A_OTEL_TRACES_EXPORTER=otlp \
 A2A_OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 \
 A2A_OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \
@@ -52,7 +52,7 @@ A2A_OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `A2A_TELEMETRY_ENABLE` | Master switch for telemetry | `true` |
+| `A2A_TELEMETRY_ENABLED` | Master switch for telemetry | `false` |
 | `A2A_OTEL_TRACES_EXPORTER` | `otlp` to export spans, `none` to disable | `otlp` |
 | `A2A_OTEL_EXPORTER_OTLP_ENDPOINT` | Collector endpoint | `http://localhost:4318` |
 | `A2A_OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` or `grpc` | `http/protobuf` |
@@ -70,7 +70,11 @@ docker run --rm -it --network host ghcr.io/inference-gateway/a2a-debugger:latest
   --server-url http://localhost:8080 tasks submit "read go.mod"
 ```
 
-Any in-container path works (`read README.md`, `read agent.yaml`); a bare `read`
+The `Read` tool only opens paths under its `allowed_roots` (`README.md`,
+`go.mod`, `agent.yaml`, `.well-known/` by default, set in `agent.yaml`
+`spec.config.tools.read.allowed_roots`; override at runtime with
+`TOOLS_READ_ALLOWED_ROOTS`). Paths are matched as written relative to the
+agent's working directory, so run the agent from the repo root. A bare `read`
 defaults to `README.md`. Matching is whole-token, so `already`, `thread`, and
 `reading` do **not** trigger it.
 

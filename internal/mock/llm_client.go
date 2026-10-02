@@ -101,7 +101,7 @@ func (m *MockLLMClient) CreateChatCompletion(ctx context.Context, messages []sdk
 		if msg.Role == sdk.Tool {
 			hasToolResults = true
 			msgText := contentToString(msg.Content)
-			if contains(toLower(msgText), "error") || contains(toLower(msgText), "failed") {
+			if !isFileContentResult(msgText) && (contains(toLower(msgText), "error") || contains(toLower(msgText), "failed")) {
 				toolError = msgText
 			}
 		}
@@ -176,7 +176,7 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 			if msg.Role == sdk.Tool {
 				hasToolResults = true
 				msgText := contentToString(msg.Content)
-				if !isSimulatedToolResult(msgText) && (contains(toLower(msgText), "error") || contains(toLower(msgText), "failed")) {
+				if !isSimulatedToolResult(msgText) && !isFileContentResult(msgText) && (contains(toLower(msgText), "error") || contains(toLower(msgText), "failed")) {
 					toolError = msgText
 				}
 			}
@@ -722,6 +722,18 @@ func simulationCompletionMessage(plan []toolCallSpec) string {
 // from being treated as a fatal tool error.
 func isSimulatedToolResult(msgText string) bool {
 	return contains(msgText, `"mock_simulated":true`) || contains(msgText, `"mock_simulated": true`)
+}
+
+// isFileContentResult reports whether a tool result is a successful Read
+// payload. Real file contents routinely mention "error" or "failed", so they
+// must not be mistaken for a failed tool call; Read failures reach the mock
+// as plain "Tool execution failed: ..." text instead.
+func isFileContentResult(msgText string) bool {
+	var payload struct {
+		FilePath *string `json:"file_path"`
+		Content  *string `json:"content"`
+	}
+	return json.Unmarshal([]byte(msgText), &payload) == nil && payload.FilePath != nil && payload.Content != nil
 }
 
 // firstInt returns the first run of decimal digits in s as an int, or def when

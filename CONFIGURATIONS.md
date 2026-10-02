@@ -7,6 +7,7 @@ derived from `agent.yaml`; the env vars below override them at runtime.
 
 | Category | Variable | Default |
 |----------|----------|---------|
+| **Tools** | `TOOLS_READ_ALLOWED_ROOTS` | `[README.md go.mod agent.yaml .well-known]` |
 | **Tools** | `TOOLS_READ_ENABLED` | `true` |
 | **Tools** | `TOOLS_READ_MAX_LINES` | `2000` |
 

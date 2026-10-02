@@ -50,7 +50,7 @@ for the prompt-keyword equivalent and full details.
 ## Telemetry
 
 Telemetry is declared in `spec.telemetry` but ships **off by default** in the
-ADK, so you opt in at runtime with `A2A_TELEMETRY_ENABLE=true`. The Prometheus
+ADK, so you opt in at runtime with `A2A_TELEMETRY_ENABLED=true`. The Prometheus
 `/metrics` endpoint and OTLP trace export are then available; the exporter
 variables are listed in the
 [README Environment Variables table](../README.md#environment-variables). For a

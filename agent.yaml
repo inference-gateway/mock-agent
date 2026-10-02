@@ -11,7 +11,6 @@ spec:
   capabilities:
     streaming: true
     pushNotifications: false
-    stateTransitionHistory: false
   artifacts:
     enabled: true
   telemetry:
@@ -68,6 +67,11 @@ spec:
       read:
         enabled: true
         max_lines: 2000
+        allowed_roots:
+          - README.md
+          - go.mod
+          - agent.yaml
+          - .well-known
   tools:
     - id: read
     - id: echo

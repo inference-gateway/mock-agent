@@ -33,15 +33,22 @@ services:
       A2A_DEBUG: "${A2A_DEBUG:-true}"
       A2A_AGENT_CLIENT_BASE_URL: "${A2A_AGENT_CLIENT_BASE_URL:-http://gateway:8080/v1}"
       # --- Telemetry: metrics on :9090, traces exported to the shared collector ---
-      A2A_TELEMETRY_ENABLE: "true"
-      A2A_TELEMETRY_METRICS_PORT: "9090"
-      A2A_TELEMETRY_TRACE_ENABLE: "true"
-      A2A_TELEMETRY_TRACE_ENDPOINT: "http://otel-collector:4318"
+      A2A_TELEMETRY_ENABLED: "true"
+      A2A_OTEL_TRACES_EXPORTER: "otlp"
+      A2A_OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+      A2A_OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+      A2A_OTEL_METRICS_EXPORTER: "prometheus"
+      A2A_OTEL_EXPORTER_PROMETHEUS_PORT: "9090"
       # --- Multi-tool-call workload: uncomment to make EVERY task emit a
       # sequence of instrumented tool spans (name[:duration_ms][!], "!" = failed
       # span). Or trigger per-request with a "simulate N tool calls" prompt. ---
       # MOCK_TOOL_CALLS: "read,search:300!,write:250"
       # MOCK_TOOL_CALL_DURATION_MS: "100"
+    # The runtime image ships only the binary, .well-known/ and .agents/skills/;
+    # mount go.mod so the `read go.mod` demo has a file to read (it is one of
+    # the Read tool's allowed_roots in agent.yaml).
+    volumes:
+      - ../../go.mod:/app/go.mod:ro
     depends_on:
       otel-collector:
         condition: service_started

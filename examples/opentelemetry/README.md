@@ -23,17 +23,23 @@ just like a live agent.
 ## Why this is needed
 
 Telemetry ships **off by default** — that default lives in the ADK
-(`A2A_TELEMETRY_ENABLE=false`), and `spec.telemetry` in `agent.yaml` maps
+(`A2A_TELEMETRY_ENABLED=false`), and `spec.telemetry` in `agent.yaml` maps
 1:1 onto that built-in config. So you turn it on at runtime with the
 `A2A_TELEMETRY_*` environment variables, which is exactly what the
 `mock-agent` service in this compose file does:
 
 | Variable | Value | Purpose |
 |----------|-------|---------|
-| `A2A_TELEMETRY_ENABLE` | `true` | Turn on telemetry (Prometheus `/metrics` + tracing) |
-| `A2A_TELEMETRY_METRICS_PORT` | `9090` | Prometheus metrics port |
-| `A2A_TELEMETRY_TRACE_ENABLE` | `true` | Enable OTLP trace export |
-| `A2A_TELEMETRY_TRACE_ENDPOINT` | `http://otel-collector:4318` | Send spans (OTLP/HTTP) to the shared collector |
+| `A2A_TELEMETRY_ENABLED` | `true` | Turn on telemetry (Prometheus `/metrics` + tracing) |
+| `A2A_OTEL_TRACES_EXPORTER` | `otlp` | Export spans over OTLP |
+| `A2A_OTEL_EXPORTER_OTLP_ENDPOINT` | `http://otel-collector:4318` | Send spans to the shared collector |
+| `A2A_OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` | OTLP transport |
+| `A2A_OTEL_METRICS_EXPORTER` | `prometheus` | Serve metrics for scraping |
+| `A2A_OTEL_EXPORTER_PROMETHEUS_PORT` | `9090` | Prometheus `/metrics` port |
+
+The compose file also mounts the repo's `go.mod` read-only into the container,
+because the runtime image ships only the binary, `.well-known/` and
+`.agents/skills/` and the `read go.mod` demo below needs a file to read.
 
 ## Quick start
 
@@ -97,10 +103,13 @@ In Jaeger the `mock-agent` trace now shows a `tool.read` span nested under
 `infer` → `a2a.request` → `tool.read` in one distributed trace — the shape
 [cli#909](https://github.com/inference-gateway/cli/pull/909) demonstrates.
 
-> Pass any in-container path, e.g. `read README.md` or `read agent.yaml`; a bare
-> `read` defaults to `README.md`. Avoid files whose contents include the words
-> "error"/"failed" — the mock treats a tool result containing them as a
-> simulated failure (the span is still emitted, but the task is marked failed).
+> The `Read` tool only opens paths under its `allowed_roots` (`README.md`,
+> `go.mod`, `agent.yaml`, `.well-known/` by default; override with
+> `TOOLS_READ_ALLOWED_ROOTS`). Inside this container that means `read go.mod`
+> (mounted) or `read .well-known/agent-card.json`. A bare `read` defaults to
+> `README.md`, which only exists when running from a source checkout. A denied
+> or missing path marks the task failed, but the `tool.read` span is still
+> emitted.
 
 ## Multi-tool-call workloads (`a2a.request` → N tool spans)
 

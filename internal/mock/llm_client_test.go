@@ -547,6 +547,63 @@ func TestReadTrigger_CompletesAfterRead(t *testing.T) {
 	}
 }
 
+func TestReadTrigger_FileMentioningErrorStillCompletes(t *testing.T) {
+	t.Parallel()
+	readResult := `{"file_path":"go.mod","lines_read":1,"content":"github.com/pkg/errors v0.9.1 // build failed? no"}`
+	messages := []sdk.Message{
+		{Role: sdk.User, Content: sdk.NewMessageContent("read go.mod")},
+		{Role: sdk.Assistant, Content: sdk.NewMessageContent("")},
+		{Role: sdk.Tool, Content: sdk.NewMessageContent(readResult)},
+	}
+
+	client, _ := newTestClient()
+	if _, err := client.CreateChatCompletion(context.Background(), messages, allMockTools()...); err != nil {
+		t.Fatalf("CreateChatCompletion treated file contents as a tool failure: %v", err)
+	}
+
+	respChan, errChan := client.CreateStreamingChatCompletion(context.Background(), messages, allMockTools()...)
+	got := drainStream(t, respChan, errChan)
+	if !strings.Contains(got, "File read complete") {
+		t.Fatalf("expected streamed read completion summary, got: %q", got)
+	}
+}
+
+func TestReadTrigger_ReadFailureStillFails(t *testing.T) {
+	t.Parallel()
+	client, _ := newTestClient()
+	messages := []sdk.Message{
+		{Role: sdk.User, Content: sdk.NewMessageContent("read secret.txt")},
+		{Role: sdk.Assistant, Content: sdk.NewMessageContent("")},
+		{Role: sdk.Tool, Content: sdk.NewMessageContent(`Tool execution failed: path "secret.txt" is outside the configured allowed_roots`)},
+	}
+	if _, err := client.CreateChatCompletion(context.Background(), messages, allMockTools()...); err == nil {
+		t.Fatal("expected a Read failure to surface as a tool error")
+	}
+}
+
+func TestIsFileContentResult(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name string
+		text string
+		want bool
+	}{
+		{"read payload", `{"file_path":"a.txt","content":"error"}`, true},
+		{"empty file", `{"file_path":"a.txt","content":""}`, true},
+		{"missing content", `{"file_path":"a.txt"}`, false},
+		{"other tool json", `{"status":"error","message":"boom"}`, false},
+		{"plain failure", `Tool execution failed: read error`, false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if got := isFileContentResult(tc.text); got != tc.want {
+				t.Fatalf("isFileContentResult(%q) = %v, want %v", tc.text, got, tc.want)
+			}
+		})
+	}
+}
+
 func TestStreaming_ReadTrigger_EmitsReadToolCall(t *testing.T) {
 	t.Parallel()
 	client, _ := newTestClient()
