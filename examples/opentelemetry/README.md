@@ -63,7 +63,7 @@ or a plain HTTP call:
 ```bash
 curl -s http://localhost:8080/a2a \
   -H 'content-type: application/json' \
-  -d '{"jsonrpc":"2.0","id":"1","method":"message/send","params":{"message":{"role":"user","parts":[{"kind":"text","text":"echo hello"}],"messageId":"m1"}}}'
+  -d '{"jsonrpc":"2.0","id":"1","method":"SendMessage","params":{"message":{"role":"ROLE_USER","parts":[{"text":"echo hello"}],"messageId":"m1"}}}'
 ```
 
 Open **http://localhost:16686**, pick the `mock-agent` service, and you'll see
@@ -95,7 +95,7 @@ or over plain HTTP:
 ```bash
 curl -s http://localhost:8080/a2a \
   -H 'content-type: application/json' \
-  -d '{"jsonrpc":"2.0","id":"1","method":"message/send","params":{"message":{"role":"user","parts":[{"kind":"text","text":"read go.mod"}],"messageId":"m1"}}}'
+  -d '{"jsonrpc":"2.0","id":"1","method":"SendMessage","params":{"message":{"role":"ROLE_USER","parts":[{"text":"read go.mod"}],"messageId":"m1"}}}'
 ```
 
 In Jaeger the `mock-agent` trace now shows a `tool.read` span nested under

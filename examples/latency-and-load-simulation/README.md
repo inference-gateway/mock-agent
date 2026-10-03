@@ -42,7 +42,7 @@ docker run --rm -it --network host ghcr.io/inference-gateway/a2a-debugger:latest
 ```bash
 curl -s http://localhost:8080/a2a \
   -H 'content-type: application/json' \
-  -d '{"jsonrpc":"2.0","id":"1","method":"message/send","params":{"message":{"role":"user","parts":[{"kind":"text","text":"run load simulation"}],"messageId":"m1"}}}'
+  -d '{"jsonrpc":"2.0","id":"1","method":"SendMessage","params":{"message":{"role":"ROLE_USER","parts":[{"text":"run load simulation"}],"messageId":"m1"}}}'
 ```
 
 Vary the shape and timing by wording the prompt:
