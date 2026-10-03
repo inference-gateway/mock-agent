@@ -11,8 +11,15 @@ Plain HTTP:
 ```bash
 curl -s http://localhost:8080/a2a \
   -H 'content-type: application/json' \
-  -d '{"jsonrpc":"2.0","id":"1","method":"message/send","params":{"message":{"role":"user","parts":[{"kind":"text","text":"echo hello"}],"messageId":"m1"}}}'
+  -d '{"jsonrpc":"2.0","id":"1","method":"SendMessage","params":{"message":{"role":"ROLE_USER","parts":[{"text":"echo hello"}],"messageId":"m1"}}}'
 ```
+
+The endpoint speaks the A2A v1.0.1 JSON-RPC method names (`SendMessage`,
+`SendStreamingMessage`, `GetTask`, `ListTasks`, `CancelTask`, ...). The v0.x
+slash names such as `message/send` return `-32601` (method not found).
+`SendMessage` waits for the task to finish; add
+`"configuration":{"returnImmediately":true}` to `params` to get the task back
+right away and poll it with `GetTask`.
 
 Or with the [A2A Debugger](https://github.com/inference-gateway/a2a-debugger):
 

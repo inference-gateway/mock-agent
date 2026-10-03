@@ -17,6 +17,7 @@ package main
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"fmt"
 	"log"
@@ -46,7 +47,7 @@ import (
 // via `-ldflags "-X 'main.Version=...'"` (see Dockerfile). They default
 // to the values declared in the ADL.
 var (
-	Version          = "0.4.10"
+	Version          = "0.4.11"
 	AgentName        = "mock-agent"
 	AgentDescription = "A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!"
 )
@@ -197,6 +198,7 @@ func runStart(ctx context.Context) error {
 	// empty strings, and so any other consumer of cfg.A2A sees the real values.
 	cfg.A2A.AgentName = AgentName
 	cfg.A2A.AgentVersion = Version
+	cfg.A2A.AgentURL = cmp.Or(cfg.A2A.AgentURL, "", "http://localhost:"+cfg.A2A.ServerConfig.Port+"/a2a")
 	// The OpenTelemetry SDK settings are read as A2A_OTEL_* through the ADK's
 	// A2A_-prefixed config (cfg.A2A.OTelConfig), so the single Process call above
 	// already loaded them - no separate OTel pass is required.

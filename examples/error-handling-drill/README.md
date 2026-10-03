@@ -64,12 +64,13 @@ done
 ```bash
 curl -s http://localhost:8080/a2a \
   -H 'content-type: application/json' \
-  -d '{"jsonrpc":"2.0","id":"1","method":"message/send","params":{"message":{"role":"user","parts":[{"kind":"text","text":"trigger an error with timeout"}],"messageId":"m1"}}}'
+  -d '{"jsonrpc":"2.0","id":"1","method":"SendMessage","params":{"message":{"role":"ROLE_USER","parts":[{"text":"trigger an error with timeout"}],"messageId":"m1"}}}'
 ```
 
 ## What you should see
 
-Every submission produces a task that transitions to **`failed`**, carrying the
+Every submission produces a task that transitions to **`failed`**
+(`TASK_STATE_FAILED` on the wire), carrying the
 matching message from the table above. List the failed tasks to confirm all four
 paths fired:
 

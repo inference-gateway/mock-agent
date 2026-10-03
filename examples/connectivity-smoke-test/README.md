@@ -11,7 +11,7 @@ work end-to-end, with a deterministic response and no API key required.
 ## What this demonstrates
 
 - The `GET /health` and `GET /.well-known/agent-card.json` liveness endpoints.
-- A full `message/send` round-trip over `POST /a2a`.
+- A full `SendMessage` round-trip over `POST /a2a`.
 - The `connectivity-check` skill: the mock routes any of its trigger phrases
   (`ping`, `connectivity check`, `smoke test`, `are you up`, `healthcheck`,
   `round-trip`, …) to the **`echo`** tool, then answers with a fixed completion
@@ -56,7 +56,7 @@ docker run --rm -it --network host ghcr.io/inference-gateway/a2a-debugger:latest
 ```bash
 curl -s http://localhost:8080/a2a \
   -H 'content-type: application/json' \
-  -d '{"jsonrpc":"2.0","id":"1","method":"message/send","params":{"message":{"role":"user","parts":[{"kind":"text","text":"connectivity check"}],"messageId":"m1"}}}'
+  -d '{"jsonrpc":"2.0","id":"1","method":"SendMessage","params":{"message":{"role":"ROLE_USER","parts":[{"text":"connectivity check"}],"messageId":"m1"}}}'
 ```
 
 ## What you should see
