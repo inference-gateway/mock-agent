@@ -17,7 +17,7 @@ Because the CLI propagates W3C trace context to the agent and both export to the
 **same collector**, the agent's `a2a.request` span nests under the CLI's tool
 span in a single distributed trace. Send the mock the agreed **`read <path>`**
 phrase (see the **Nested tool spans** section below) and it emits its own nested
-`tool.read` span under `a2a.request`, so the trace shows real per-tool sub-spans
+`tool.Read` span under `a2a.request`, so the trace shows real per-tool sub-spans
 just like a live agent.
 
 ## Why this is needed
@@ -76,16 +76,17 @@ docker compose -f examples/opentelemetry/docker-compose.yaml logs -f otel-collec
 Prometheus metrics are exposed directly by the agent at
 **http://localhost:9090/metrics** (instruments prefixed `a2a.`).
 
-## Nested tool spans (`a2a.request` → `tool.read`)
+## Nested tool spans (`a2a.request` → `tool.Read`)
 
-By default the mock answers with canned text and never runs a tool, so the agent
-contributes only the `a2a.request` middleware span. To make it emit a **real
-sub-tool span**, send the agreed **`read <path>`** phrase — the mock LLM client
-routes it through the generated `Read` built-in, which opens a `tool.read` span
+By default the mock only round-trips its `echo` tool before answering with canned
+text, so the agent contributes just the `a2a.request` span and a `tool.echo`
+span. To make it emit a **real sub-tool span**, send the agreed **`read <path>`**
+phrase — the mock LLM client
+routes it through the generated `Read` built-in, which opens a `tool.Read` span
 (`tools/telemetry.go`) parented under the inbound request:
 
 ```bash
-# reads go.mod inside the agent container and emits a tool.read span
+# reads go.mod inside the agent container and emits a tool.Read span
 docker compose -f examples/opentelemetry/docker-compose.yaml --profile debugger \
   run --rm debugger --server-url http://mock-agent:8080 tasks submit "read go.mod"
 ```
@@ -98,9 +99,9 @@ curl -s http://localhost:8080/a2a \
   -d '{"jsonrpc":"2.0","id":"1","method":"SendMessage","params":{"message":{"role":"ROLE_USER","parts":[{"text":"read go.mod"}],"messageId":"m1"}}}'
 ```
 
-In Jaeger the `mock-agent` trace now shows a `tool.read` span nested under
+In Jaeger the `mock-agent` trace now shows a `tool.Read` span nested under
 `a2a.request` (same trace ID). With the CLI wired up (below) the full chain is
-`infer` → `a2a.request` → `tool.read` in one distributed trace — the shape
+`infer` → `a2a.request` → `tool.Read` in one distributed trace — the shape
 [cli#909](https://github.com/inference-gateway/cli/pull/909) demonstrates.
 
 > The `Read` tool only opens paths under its `allowed_roots` (`README.md`,
@@ -108,12 +109,12 @@ In Jaeger the `mock-agent` trace now shows a `tool.read` span nested under
 > `TOOLS_READ_ALLOWED_ROOTS`). Inside this container that means `read go.mod`
 > (mounted) or `read .well-known/agent-card.json`. A bare `read` defaults to
 > `README.md`, which only exists when running from a source checkout. A denied
-> or missing path marks the task failed, but the `tool.read` span is still
+> or missing path marks the task failed, but the `tool.Read` span is still
 > emitted.
 
 ## Multi-tool-call workloads (`a2a.request` → N tool spans)
 
-A single `tool.read` span is a good smoke test, but real agents fan out into
+A single `tool.Read` span is a good smoke test, but real agents fan out into
 several tool calls of varying duration, some of which fail. The mock can
 simulate exactly that: drive the `simulate_tool_call` tool N times and the trace
 shows `a2a.request` → `tool.read` → `tool.search` → … , each span carrying its
@@ -129,9 +130,9 @@ docker compose -f examples/opentelemetry/docker-compose.yaml --profile debugger 
   tasks submit "simulate 4 tool calls with a failure"
 ```
 
-…or make it the default for **every** task via `MOCK_TOOL_CALLS` (already wired
-into the `mock-agent` service env in this compose file — uncomment it there, or
-export it before `up`). Each entry is `name[:duration_ms][!]`:
+…or make it the default for **every** task via `MOCK_TOOL_CALLS` (passed through
+to the `mock-agent` service env in this compose file — export it before `up`).
+Each entry is `name[:duration_ms][!]`:
 
 ```bash
 # read (100ms) → search (300ms, failed span) → write (250ms)
@@ -158,7 +159,7 @@ through the gateway) and a build of the CLI that includes
 #   OPENAI_API_KEY=sk-...
 #   CLI_PROVIDER=openai
 #   CLI_MODEL=gpt-4o
-cp ../../.env.example ../../.env   # then edit
+cp .env.example .env   # then edit
 
 docker compose -f examples/opentelemetry/docker-compose.yaml --profile cli up --build -d
 docker compose -f examples/opentelemetry/docker-compose.yaml --profile cli run --rm cli chat
