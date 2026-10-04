@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.14](https://github.com/inference-gateway/mock-agent/compare/v0.4.13...v0.4.14) (2026-10-04)
+
+### 🐛 Bug Fixes
+
+* **mock:** end streams with an include_usage chunk ([#167](https://github.com/inference-gateway/mock-agent/issues/167)) ([b6ddac7](https://github.com/inference-gateway/mock-agent/commit/b6ddac753537b81883c87e245b4a8f5b630fcdcc)), references [inference-gateway/cli#1526](https://github.com/inference-gateway/cli/issues/1526)
+
+### 🔧 Miscellaneous
+
+* **deps:** bump ADL CLI v0.66.2 -> v0.66.4 ([#168](https://github.com/inference-gateway/mock-agent/issues/168)) ([ab6dc24](https://github.com/inference-gateway/mock-agent/commit/ab6dc240184c9450c8fe306e9c60e03b5c6baa82))
+
 ## [0.4.13](https://github.com/inference-gateway/mock-agent/compare/v0.4.12...v0.4.13) (2026-10-04)
 
 ### 🔧 Miscellaneous
