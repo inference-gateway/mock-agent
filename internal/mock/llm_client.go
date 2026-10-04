@@ -142,12 +142,26 @@ func (m *MockLLMClient) CreateChatCompletion(ctx context.Context, messages []sdk
 				FinishReason: sdk.Stop,
 			},
 		},
-		Usage: &sdk.CompletionUsage{
-			PromptTokens:     100,
-			CompletionTokens: 50,
-			TotalTokens:      150,
-		},
+		Usage: mockUsage(),
 	}, nil
+}
+
+// mockUsage is the fixed token usage every mock completion reports.
+func mockUsage() *sdk.CompletionUsage {
+	return &sdk.CompletionUsage{PromptTokens: 100, CompletionTokens: 50, TotalTokens: 150}
+}
+
+// usageChunk is the chunk a stream ends with when the gateway forces include_usage: no
+// choices, only the usage of the whole request.
+func usageChunk() *sdk.CreateChatCompletionStreamResponse {
+	return &sdk.CreateChatCompletionStreamResponse{
+		ID:      "mock-stream-" + generateID(),
+		Model:   "mock-model",
+		Object:  "chat.completion.chunk",
+		Created: 1234567890,
+		Choices: []sdk.ChatCompletionStreamChoice{},
+		Usage:   mockUsage(),
+	}
 }
 
 func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messages []sdk.Message, tools ...sdk.ChatCompletionTool) (<-chan *sdk.CreateChatCompletionStreamResponse, <-chan error) {
@@ -234,6 +248,7 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 						},
 					},
 				}
+				respChan <- usageChunk()
 				return
 			}
 		}
@@ -271,6 +286,7 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 				},
 			},
 		}
+		respChan <- usageChunk()
 	}()
 
 	return respChan, errChan

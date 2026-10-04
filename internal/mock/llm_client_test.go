@@ -351,6 +351,44 @@ func drainStream(t *testing.T, respChan <-chan *sdk.CreateChatCompletionStreamRe
 	}
 }
 
+// TestStreaming_EndsWithUsageChunk: both the text and the tool-call stream end
+// the way an include_usage stream does, with a usage-only chunk after the finish.
+func TestStreaming_EndsWithUsageChunk(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name       string
+		tools      []sdk.ChatCompletionTool
+		wantFinish sdk.FinishReason
+	}{
+		{name: "text", wantFinish: sdk.Stop},
+		{name: "tool calls", tools: allMockTools(), wantFinish: sdk.ToolCalls},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			client, _ := newTestClient()
+			messages := []sdk.Message{{Role: sdk.User, Content: sdk.NewMessageContent("echo hello")}}
+			respChan, _ := client.CreateStreamingChatCompletion(context.Background(), messages, tt.tools...)
+
+			var chunks []*sdk.CreateChatCompletionStreamResponse
+			for resp := range respChan {
+				chunks = append(chunks, resp)
+			}
+
+			if len(chunks) < 2 {
+				t.Fatalf("expected a finish chunk and a usage chunk, got %d chunks", len(chunks))
+			}
+			last, finish := chunks[len(chunks)-1], chunks[len(chunks)-2]
+			if len(last.Choices) != 0 || last.Usage == nil || last.Usage.TotalTokens != 150 {
+				t.Fatalf("expected a usage-only last chunk, got %+v", last)
+			}
+			if len(finish.Choices) == 0 || finish.Choices[0].FinishReason != tt.wantFinish {
+				t.Fatalf("expected a %q finish chunk before the usage chunk, got %+v", tt.wantFinish, finish)
+			}
+		})
+	}
+}
+
 func TestStreaming_ConnectivityCheck_NotDoubleWrapped(t *testing.T) {
 	t.Parallel()
 	client, _ := newTestClient()
