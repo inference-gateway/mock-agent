@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0](https://github.com/inference-gateway/mock-agent/compare/v0.4.16...v0.5.0) (2026-10-05)
+
+### ✨ Features
+
+* declare the runtime security scheme on the agent card ([#172](https://github.com/inference-gateway/mock-agent/issues/172)) ([6fdfe7f](https://github.com/inference-gateway/mock-agent/commit/6fdfe7f077a62c0435faf8c4e40cc1d010a13398))
+
+### 🔧 Miscellaneous
+
+* **deps:** bump ADL CLI v0.67.1 -> v0.67.2 ([#173](https://github.com/inference-gateway/mock-agent/issues/173)) ([8d659bf](https://github.com/inference-gateway/mock-agent/commit/8d659bfc06495dfe0f57301df67468bc4fd56f5d))
+
 ## [0.4.16](https://github.com/inference-gateway/mock-agent/compare/v0.4.15...v0.4.16) (2026-10-05)
 
 ### 👷 CI
