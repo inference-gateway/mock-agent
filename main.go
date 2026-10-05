@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"maps"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -35,6 +36,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 
 	server "github.com/inference-gateway/adk/server"
+	serverConfig "github.com/inference-gateway/adk/server/config"
 
 	config "github.com/inference-gateway/mock-agent/config"
 	tools "github.com/inference-gateway/mock-agent/tools"
@@ -47,7 +49,7 @@ import (
 // via `-ldflags "-X 'main.Version=...'"` (see Dockerfile). They default
 // to the values declared in the ADL.
 var (
-	Version          = "0.4.11"
+	Version          = "0.4.16"
 	AgentName        = "mock-agent"
 	AgentDescription = "A2A agent server for mocking and testing. Uses a mock LLM client - no API keys required!"
 )
@@ -153,6 +155,34 @@ func taskWorkers() int {
 	return n
 }
 
+// advertiseAuthScheme declares on the served AgentCard how /a2a is secured at
+// runtime (A2A spec section 7), so clients can discover how to authenticate.
+// The mode comes from A2A_AUTH_* at startup, so it is not baked into the static
+// card. A scheme the manifest already declares under the same name is kept.
+func advertiseAuthScheme(a2aServer server.A2AServer, auth serverConfig.AuthConfig) bool {
+	card := a2aServer.GetAgentCard()
+	if card == nil || (!auth.Enabled && auth.Token == "") {
+		return false
+	}
+	schemes, security := server.BearerTokenSecuritySchemes()
+	if auth.Enabled {
+		schemes, security = server.OIDCSecuritySchemes(auth)
+	}
+	for name := range schemes {
+		if _, declared := card.SecuritySchemes[name]; declared {
+			return false
+		}
+	}
+	if card.SecuritySchemes == nil {
+		card.SecuritySchemes = schemes
+	} else {
+		maps.Copy(card.SecuritySchemes, schemes)
+	}
+	card.SecurityRequirements = append(card.SecurityRequirements, security...)
+	a2aServer.SetAgentCard(*card)
+	return true
+}
+
 // newRootCmd builds the top-level CLI for the agent binary. The
 // generated binary is a real CLI: `<bin> --version`, `<bin> --help`,
 // and `<bin> start` are all supported. Subcommands are added in
@@ -198,7 +228,7 @@ func runStart(ctx context.Context) error {
 	// empty strings, and so any other consumer of cfg.A2A sees the real values.
 	cfg.A2A.AgentName = AgentName
 	cfg.A2A.AgentVersion = Version
-	cfg.A2A.AgentURL = cmp.Or(cfg.A2A.AgentURL, "", "http://localhost:"+cfg.A2A.ServerConfig.Port+"/a2a")
+	cfg.A2A.AgentURL = cmp.Or(cfg.A2A.AgentURL, "http://localhost:"+cfg.A2A.ServerConfig.Port+"/a2a")
 	// The OpenTelemetry SDK settings are read as A2A_OTEL_* through the ADK's
 	// A2A_-prefixed config (cfg.A2A.OTelConfig), so the single Process call above
 	// already loaded them - no separate OTel pass is required.
@@ -210,7 +240,6 @@ func runStart(ctx context.Context) error {
 	}
 
 	l.Info("starting "+AgentName+" agent", zap.String("version", Version), zap.Bool("debug", cfg.A2A.Debug))
-	l.Debug("loaded configuration", zap.Any("config", cfg))
 
 	resolvedSkillsDir := skillsDir
 	if v := os.Getenv("A2A_SKILLS_DIR"); v != "" {
@@ -360,6 +389,10 @@ Your purpose is to provide consistent, reproducible responses for testing A2A pr
 		Build()
 	if err != nil {
 		return fmt.Errorf("failed to create A2A server: %w", err)
+	}
+
+	if advertiseAuthScheme(a2aServer, cfg.A2A.AuthConfig) {
+		l.Info("advertised the runtime security scheme on the agent card")
 	}
 
 	go func() {
