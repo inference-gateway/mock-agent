@@ -5,7 +5,7 @@ go 1.26.8
 require (
 	github.com/google/uuid v1.6.0
 	github.com/inference-gateway/adk v0.34.0
-	github.com/inference-gateway/sdk v1.41.0
+	github.com/inference-gateway/sdk v1.42.0
 	github.com/sethvargo/go-envconfig v1.4.3
 	github.com/spf13/cobra v1.10.2
 	go.opentelemetry.io/otel v1.47.0
