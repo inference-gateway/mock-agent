@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2](https://github.com/inference-gateway/mock-agent/compare/v0.5.1...v0.5.2) (2026-10-15)
+
+### 👷 CI
+
+* **deps:** bump github.com/inference-gateway/sdk from 1.41.0 to 1.42.0 in the gomod group across 1 directory ([#175](https://github.com/inference-gateway/mock-agent/issues/175)) ([0210921](https://github.com/inference-gateway/mock-agent/commit/02109211902c230b71750aac3eee65eba399b994))
+
+### 🔧 Miscellaneous
+
+* **deps:** bump ADL CLI v0.67.3 -> v0.67.4 ([#176](https://github.com/inference-gateway/mock-agent/issues/176)) ([2692e39](https://github.com/inference-gateway/mock-agent/commit/2692e39a1647f86dfc64970fae81eb494f7dd6b6))
+* **deps:** bump ADL CLI v0.67.4 -> v0.68.0 ([#177](https://github.com/inference-gateway/mock-agent/issues/177)) ([63f6ce3](https://github.com/inference-gateway/mock-agent/commit/63f6ce31eec1ea4df300cee453ac57119dca300a))
+
 ## [0.5.1](https://github.com/inference-gateway/mock-agent/compare/v0.5.0...v0.5.1) (2026-10-08)
 
 ### 🔧 Miscellaneous
