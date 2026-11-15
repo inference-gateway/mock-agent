@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.3](https://github.com/inference-gateway/mock-agent/compare/v0.5.2...v0.5.3) (2026-11-15)
+
+### 👷 CI
+
+* **deps:** bump github.com/go-jose/go-jose/v4 from 4.1.5 to 4.1.6 ([#185](https://github.com/inference-gateway/mock-agent/issues/185)) ([f9089e6](https://github.com/inference-gateway/mock-agent/commit/f9089e67a47ef4c192af3fc0b60d6b29fcb26081))
+* **deps:** bump github.com/inference-gateway/sdk ([#189](https://github.com/inference-gateway/mock-agent/issues/189)) ([451475d](https://github.com/inference-gateway/mock-agent/commit/451475d9f2a31b56be9e2af55701b65708439515))
+* **deps:** bump github.com/inference-gateway/sdk ([#191](https://github.com/inference-gateway/mock-agent/issues/191)) ([985c1b8](https://github.com/inference-gateway/mock-agent/commit/985c1b8096b170c6bb5e06b8e1b857aa3bd31fc7))
+* **deps:** bump github.com/inference-gateway/sdk ([#196](https://github.com/inference-gateway/mock-agent/issues/196)) ([0369d51](https://github.com/inference-gateway/mock-agent/commit/0369d518e2381dbdae8baa67bf1c73d6705e4f7d))
+* **deps:** bump github.com/inference-gateway/sdk from 1.42.0 to 1.43.0 in the gomod group ([#182](https://github.com/inference-gateway/mock-agent/issues/182)) ([8851dec](https://github.com/inference-gateway/mock-agent/commit/8851dec40043b839b5aaeb11ecd8d807d93f1211))
+
+### 🔧 Miscellaneous
+
+* **deps:** bump ADL CLI v0.68.0 -> v0.68.1 ([#178](https://github.com/inference-gateway/mock-agent/issues/178)) ([a8dae9c](https://github.com/inference-gateway/mock-agent/commit/a8dae9c84ff734b4283478d0e683432e2881b7c5))
+* **deps:** bump ADL CLI v0.68.1 -> v0.68.2 ([#181](https://github.com/inference-gateway/mock-agent/issues/181)) ([b7a012f](https://github.com/inference-gateway/mock-agent/commit/b7a012f95dc517d8a59baeef0bd662d1d614a4c6))
+* **deps:** bump ADL CLI v0.68.2 -> v0.68.3 ([#184](https://github.com/inference-gateway/mock-agent/issues/184)) ([5649ff6](https://github.com/inference-gateway/mock-agent/commit/5649ff6b838cc4b616dbd46b423cbbabd24df2e0))
+* **deps:** bump ADL CLI v0.68.3 -> v0.68.4 ([#187](https://github.com/inference-gateway/mock-agent/issues/187)) ([45e82a4](https://github.com/inference-gateway/mock-agent/commit/45e82a44455bc08cb7ff7864cb6dde6779f88e58))
+* **deps:** bump ADL CLI v0.68.4 -> v0.68.5 ([#188](https://github.com/inference-gateway/mock-agent/issues/188)) ([0ecfd9a](https://github.com/inference-gateway/mock-agent/commit/0ecfd9a1b5f02d9ae690f31cc8f92cd6e19c737e))
+* **deps:** bump ADL CLI v0.68.5 -> v0.68.7 ([#195](https://github.com/inference-gateway/mock-agent/issues/195)) ([1f94ec0](https://github.com/inference-gateway/mock-agent/commit/1f94ec002f6c642d52d30b36ec788d0105f7a43c))
+* **deps:** bump ADL CLI v0.68.7 -> v0.68.8 ([#199](https://github.com/inference-gateway/mock-agent/issues/199)) ([6b5f64b](https://github.com/inference-gateway/mock-agent/commit/6b5f64b3d5abe2d264bd7221fd2ce285f736edef))
+* **deps:** bump flox dependencies to latest ([#198](https://github.com/inference-gateway/mock-agent/issues/198)) ([238bbfb](https://github.com/inference-gateway/mock-agent/commit/238bbfbf85900bb1a02c986e5f1ce62c90180089))
+* remove CLAUDE.md file ([#179](https://github.com/inference-gateway/mock-agent/issues/179)) ([c21cf90](https://github.com/inference-gateway/mock-agent/commit/c21cf90898348038432962136b6b43f7dbde3fe7))
+* sync generated project with ADL manifest ([#190](https://github.com/inference-gateway/mock-agent/issues/190)) ([74d8e24](https://github.com/inference-gateway/mock-agent/commit/74d8e24c5d2284ebe8b5f5c9f93bb9e64654a014))
+* sync generated project with ADL manifest ([#197](https://github.com/inference-gateway/mock-agent/issues/197)) ([146fcaa](https://github.com/inference-gateway/mock-agent/commit/146fcaa7eca2ed3a2ac3644e445724aeac06132e)), references [#196](https://github.com/inference-gateway/mock-agent/issues/196)
+
 ## [0.5.2](https://github.com/inference-gateway/mock-agent/compare/v0.5.1...v0.5.2) (2026-10-15)
 
 ### 👷 CI
