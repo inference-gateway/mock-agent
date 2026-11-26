@@ -4,8 +4,8 @@ go 1.27.3
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/inference-gateway/adk v0.34.2
-	github.com/inference-gateway/sdk v1.47.1
+	github.com/inference-gateway/adk v0.35.0
+	github.com/inference-gateway/sdk v1.48.0
 	github.com/sethvargo/go-envconfig v1.4.3
 	github.com/spf13/cobra v1.10.2
 	go.opentelemetry.io/otel v1.47.0
@@ -29,7 +29,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.15 // indirect
 	github.com/gin-contrib/sse v1.1.1 // indirect
 	github.com/gin-gonic/gin v1.12.0 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.7 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.9 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
