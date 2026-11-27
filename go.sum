@@ -31,8 +31,8 @@ github.com/gin-contrib/sse v1.1.1 h1:uGYpNwTacv5R68bSGMapo62iLTRa9l5zxGCps4hK6ko
 github.com/gin-contrib/sse v1.1.1/go.mod h1:QXzuVkA0YO7o/gun03UI1Q+FTI8ZV/n5t03kIQAI89s=
 github.com/gin-gonic/gin v1.12.0 h1:b3YAbrZtnf8N//yjKeU2+MQsh2mY5htkZidOM7O0wG8=
 github.com/gin-gonic/gin v1.12.0/go.mod h1:VxccKfsSllpKshkBWgVgRniFFAzFb9csfngsqANjnLc=
-github.com/go-jose/go-jose/v4 v4.1.7 h1:Nac/98uT5LPkfbiFuYa8ktf62a2VxwQ4xbq1GK8pV5E=
-github.com/go-jose/go-jose/v4 v4.1.7/go.mod h1:x4oUasVrzR7071A4TnHLGSPpNOm2a21K9Kf04k1rs08=
+github.com/go-jose/go-jose/v4 v4.1.9 h1:pKfeQkig1NmgK4hJrZYXLEYURXfoJB61Larw0uIW4gY=
+github.com/go-jose/go-jose/v4 v4.1.9/go.mod h1:x4oUasVrzR7071A4TnHLGSPpNOm2a21K9Kf04k1rs08=
 github.com/go-logr/logr v1.2.2/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=
 github.com/go-logr/logr v1.4.4 h1:tG4xh9yMsRCAiodLVTxyrkzSZ9+o0L1Kg/+cPVcbP/8=
 github.com/go-logr/logr v1.4.4/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
@@ -61,10 +61,10 @@ github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0 h1:/Tnpcb2E0Pz/tN9s3bfEY2Q8ePC
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0/go.mod h1:zOBXOsUaBSjKgmH4OGzV1esUpR3oUSCPYVd2cUBjKYY=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
-github.com/inference-gateway/adk v0.34.2 h1:UUtGti0OZPaSqcz+TQQ2+Q8CNmjNwt0PXxqsY6d1v3Q=
-github.com/inference-gateway/adk v0.34.2/go.mod h1:FRZ0DeJQ4TD/oKkKHVhSNztgKSs6B05cgqIZVcKweYk=
-github.com/inference-gateway/sdk v1.47.1 h1:KIok9lQZxCukHynuDEXoEWoSExvu5hn2ezV2kv3PITs=
-github.com/inference-gateway/sdk v1.47.1/go.mod h1:sbt0jlggXBw9mYJ4UadcDc/Gl/STxpkn1gWjFMg6TU0=
+github.com/inference-gateway/adk v0.35.0 h1:BUOr2rKOjay+qY2ybP3Kf/RcsCFyEgIKwwC3sOLZ51Q=
+github.com/inference-gateway/adk v0.35.0/go.mod h1:7oz/edw4ZmW5EZqZmBi09MxS5eqkE5xvApY6rKI7VOg=
+github.com/inference-gateway/sdk v1.48.0 h1:yB+/RlPdiTnIItDgG32HO738ftjHsM8KA8Ta0IudesQ=
+github.com/inference-gateway/sdk v1.48.0/go.mod h1:sbt0jlggXBw9mYJ4UadcDc/Gl/STxpkn1gWjFMg6TU0=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/juju/gnuflag v0.0.0-20171113085948-2ce1bb71843d/go.mod h1:2PavIy+JPciBPrBUjwbNvtwB6RQlve+hkpll6QSNmOE=
