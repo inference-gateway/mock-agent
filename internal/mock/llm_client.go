@@ -229,7 +229,6 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 								Delta: sdk.ChatCompletionStreamResponseDelta{
 									ToolCalls: &chunks,
 								},
-								FinishReason: "",
 							},
 						},
 					}
@@ -244,7 +243,7 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 						{
 							Index:        0,
 							Delta:        sdk.ChatCompletionStreamResponseDelta{},
-							FinishReason: sdk.ToolCalls,
+							FinishReason: ptr(sdk.ToolCalls),
 						},
 					},
 				}
@@ -264,9 +263,8 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 				{
 					Index: 0,
 					Delta: sdk.ChatCompletionStreamResponseDelta{
-						Content: response,
+						Content: ptr(response),
 					},
-					FinishReason: "",
 				},
 			},
 		}
@@ -278,11 +276,9 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 			Created: 1234567890,
 			Choices: []sdk.ChatCompletionStreamChoice{
 				{
-					Index: 0,
-					Delta: sdk.ChatCompletionStreamResponseDelta{
-						Content: "",
-					},
-					FinishReason: sdk.Stop,
+					Index:        0,
+					Delta:        sdk.ChatCompletionStreamResponseDelta{},
+					FinishReason: ptr(sdk.Stop),
 				},
 			},
 		}
@@ -290,6 +286,11 @@ func (m *MockLLMClient) CreateStreamingChatCompletion(ctx context.Context, messa
 	}()
 
 	return respChan, errChan
+}
+
+// ptr returns a pointer to v, for the optional fields of SDK stream chunks.
+func ptr[T any](v T) *T {
+	return &v
 }
 
 // finalTextResponse builds the text response returned when no tool call is

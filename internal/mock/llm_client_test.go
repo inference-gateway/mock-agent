@@ -339,8 +339,8 @@ func drainStream(t *testing.T, respChan <-chan *sdk.CreateChatCompletionStreamRe
 			if !ok {
 				return content
 			}
-			if len(resp.Choices) > 0 {
-				content += resp.Choices[0].Delta.Content
+			if len(resp.Choices) > 0 && resp.Choices[0].Delta.Content != nil {
+				content += *resp.Choices[0].Delta.Content
 			}
 		case err, ok := <-errChan:
 			if ok && err != nil {
@@ -382,7 +382,7 @@ func TestStreaming_EndsWithUsageChunk(t *testing.T) {
 			if len(last.Choices) != 0 || last.Usage == nil || last.Usage.TotalTokens != 150 {
 				t.Fatalf("expected a usage-only last chunk, got %+v", last)
 			}
-			if len(finish.Choices) == 0 || finish.Choices[0].FinishReason != tt.wantFinish {
+			if len(finish.Choices) == 0 || finish.Choices[0].FinishReason == nil || *finish.Choices[0].FinishReason != tt.wantFinish {
 				t.Fatalf("expected a %q finish chunk before the usage chunk, got %+v", tt.wantFinish, finish)
 			}
 		})
